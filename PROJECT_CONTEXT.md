@@ -1,22 +1,24 @@
 # WhisperIDE - Contexte du Projet
 
-## 💻 Point d'Entrée Principal
-### Modification de `Main.kt`
-- Intégration du nouveau layout
-- Utilisation du thème WhisperTheme
-- Configuration de la fenêtre principale
+## 🥋 Interface de Chat IA
+### Composant `ChatInterface.kt`
+- Interface de chat conversationnel
+- Gestion dynamique des messages
+- Support des messages utilisateur et IA
 
-#### Changements Clés
-- Remplacement de l'ancien layout
-- Ajout du support de prévisualisation
-- Configuration minimale de la fenêtre
+#### Fonctionnalités Clés
+- Liste déroulante des messages
+- Champ de saisie multi-lignes
+- Différenciation visuelle des messages
+- Placeholder pour l'implémentation de la logique IA
 
-### Configuration de l'Application
-- Titre fixé à "WhisperIDE"
-- Gestion de la fermeture de l'application
-- Support du thème global
+### Architecture
+- Utilisation de `LazyColumn` pour le rendu des messages
+- Gestion d'état avec `remember` et `mutableStateOf`
+- Composant de message personnalisable
 
-### Objectifs
-- Simplifier le point d'entrée
-- Centraliser la configuration de l'interface
-- Préparer le terrain pour des extensions futures
+### Points à Développer
+- Intégration avec le moteur IA
+- Gestion avancée des conversations
+- Persistance des conversations
+- Système de suggestion contextuelle
