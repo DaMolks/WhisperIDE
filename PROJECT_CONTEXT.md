@@ -1,29 +1,22 @@
 # WhisperIDE - Contexte du Projet
 
-## 🌐 Nouveau Layout Principal
-### Composant `WhisperMainLayout.kt`
-- Architecture centrée sur l'interaction IA
-- Navigation modulaire entre écrans
-- Support du mode sombre/clair
-- Drawer latéral personnalisable
+## 💻 Point d'Entrée Principal
+### Modification de `Main.kt`
+- Intégration du nouveau layout
+- Utilisation du thème WhisperTheme
+- Configuration de la fenêtre principale
 
-#### Écrans Principaux
-- Chat IA (principal)
-- Gestion de Projets
-- Édition de Code
+#### Changements Clés
+- Remplacement de l'ancien layout
+- Ajout du support de prévisualisation
+- Configuration minimale de la fenêtre
 
-#### Fonctionnalités Clés
-- Barre de navigation inférieure dynamique
-- Drawer de navigation latéral
-- Barre supérieure avec actions contextuelles
-- Support de l'état global de l'application
+### Configuration de l'Application
+- Titre fixé à "WhisperIDE"
+- Gestion de la fermeture de l'application
+- Support du thème global
 
-### Principes de Conception
-- Priorité à l'interaction conversationnelle
-- Accès rapide aux fonctionnalités IDE
-- Expérience utilisateur fluide et intuitive
-
-### Étapes Suivantes
-- Implémenter les écrans de base
-- Développer les interactions entre écrans
-- Intégrer la logique métier existante
+### Objectifs
+- Simplifier le point d'entrée
+- Centraliser la configuration de l'interface
+- Préparer le terrain pour des extensions futures
