@@ -8,6 +8,9 @@ import logging
 import winreg
 from datetime import datetime
 import shutil
+import signal
+import threading
+import queue
 
 # Création du dossier logs
 log_dir = 'logs'
@@ -28,6 +31,25 @@ logging.basicConfig(
     ],
     format='%(asctime)s - %(levelname)s: %(message)s'
 )
+
+# Variable globale pour gérer le processus
+process = None
+log_queue = queue.Queue()
+
+def enqueue_output(out, queue):
+    for line in iter(out.readline, b''):
+        queue.put(line.decode('utf-8').strip())
+    out.close()
+
+def signal_handler(sig, frame):
+    global process
+    print('\nInterruption détectée. Arrêt du processus...')
+    if process:
+        process.terminate()
+        process.wait()
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
 
 def add_to_path(path):
     try:
@@ -62,7 +84,18 @@ def install_gradle():
     
     return os.path.join(gradle_bin, 'gradle.bat')
 
+def process_logs():
+    while True:
+        try:
+            line = log_queue.get(timeout=0.1)
+            print(line)
+            logging.info(line)
+        except queue.Empty:
+            if process and process.poll() is not None:
+                break
+
 def main():
+    global process
     gradle_executable = install_gradle()
     
     try:
@@ -71,16 +104,16 @@ def main():
             [gradle_executable, 'desktop:run', '--info'], 
             stdout=subprocess.PIPE, 
             stderr=subprocess.STDOUT, 
-            text=True
+            text=False  # Pas de texte ici pour un meilleur contrôle de l'encodage
         )
         
-        while True:
-            output = process.stdout.readline()
-            if output == '' and process.poll() is not None:
-                break
-            if output:
-                print(output.strip())  # Affichage dans le terminal
-                logging.info(output.strip())  # Log dans le fichier
+        # Thread pour collecter les logs
+        log_thread = threading.Thread(target=enqueue_output, args=(process.stdout, log_queue))
+        log_thread.daemon = True
+        log_thread.start()
+        
+        # Traitement des logs dans le thread principal
+        process_logs()
         
         if process.poll() != 0:
             logging.error(f'Erreur de build. Code de retour : {process.poll()}')
