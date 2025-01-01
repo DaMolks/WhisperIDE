@@ -40,6 +40,7 @@ def is_important_message(line):
     # Patterns pour les messages importants
     important_patterns = [
         r'error', r'fail', r'exception',  # Erreurs et échecs
+        r'e:\s',  # Messages d'erreur détaillés
         r'warning',  # Avertissements
         r'starting', r'finished',  # États importants
         r'downloading', r'downloaded',  # Téléchargements
@@ -141,7 +142,7 @@ def main():
         
         logging.info('Lancement de la compilation...')
         process = subprocess.Popen(
-            [gradle_executable, 'desktop:run', '--info'],
+            [gradle_executable, 'desktop:run', '--info', '--stacktrace'],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=False
