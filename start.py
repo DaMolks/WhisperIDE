@@ -25,7 +25,38 @@ def main():
     gradle_executable = install_gradle()
     
     try:
-        subprocess.Popen([gradle_executable, 'desktop:run'], shell=True)
+        # Options de débogage Gradle
+        debug_options = [
+            '--info',        # Informations détaillées
+            '--stacktrace',  # Trace des erreurs
+            '--scan',        # Rapport de build
+            '--debug'        # Niveau de débogage maximal
+        ]
+        
+        # Commande de lancement avec options de débogage
+        full_command = [gradle_executable, 'desktop:run'] + debug_options
+        
+        # Lancement avec affichage des logs
+        process = subprocess.Popen(
+            full_command, 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.STDOUT, 
+            text=True,
+            shell=True
+        )
+        
+        # Afficher les logs en temps réel
+        while True:
+            output = process.stdout.readline()
+            if output == '' and process.poll() is not None:
+                break
+            if output:
+                print(output.strip())
+        
+        # Vérifier le code de retour
+        if process.poll() != 0:
+            print(f'Erreur de build. Code de retour : {process.poll()}')
+    
     except Exception as e:
         print(f'Erreur lors du lancement : {e}')
         sys.exit(1)
