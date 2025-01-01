@@ -13,24 +13,27 @@ import shutil
 log_dir = 'logs'
 os.makedirs(log_dir, exist_ok=True)
 
-# Gestion des anciens logs
+# Nettoyer les anciens logs
 for log_file in os.listdir(log_dir):
-    if log_file != 'latest.log':
-        os.remove(os.path.join(log_dir, log_file))
+    file_path = os.path.join(log_dir, log_file)
+    if os.path.isfile(file_path) and log_file != 'latest.log':
+        os.remove(file_path)
 
 # Nom du fichier log avec horodatage
-log_filename = os.path.join(log_dir, f'{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
+log_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+log_filename = os.path.join(log_dir, f'{log_timestamp}.log')
 latest_log = os.path.join(log_dir, 'latest.log')
 
 # Configuration du logging
 logging.basicConfig(
-    filename=log_filename, 
-    level=logging.INFO, 
+    level=logging.INFO,
+    handlers=[
+        logging.FileHandler(log_filename),
+        logging.FileHandler(latest_log),
+        logging.StreamHandler(sys.stdout)
+    ],
     format='%(asctime)s - %(levelname)s: %(message)s'
 )
-
-# Copie vers latest.log
-shutil.copy2(log_filename, latest_log)
 
 def add_to_path(path):
     try:
@@ -71,23 +74,19 @@ def main():
     try:
         logging.info('Lancement de la compilation...')
         process = subprocess.Popen(
-            [gradle_executable, 'desktop:run'], 
+            [gradle_executable, 'desktop:run', '--info'], 
             stdout=subprocess.PIPE, 
             stderr=subprocess.STDOUT, 
             text=True
         )
         
-        # Filtrer et afficher uniquement les messages importants
-        important_keywords = ['BUILD', 'ERROR', 'FAILURE', 'SUCCESS']
         while True:
             output = process.stdout.readline()
             if output == '' and process.poll() is not None:
                 break
             if output:
-                # Filtre les messages importants
-                if any(keyword in output for keyword in important_keywords):
-                    print(output.strip())
-                    logging.info(output.strip())
+                print(output.strip())  # Affichage dans le terminal
+                logging.info(output.strip())  # Log dans le fichier
         
         if process.poll() != 0:
             logging.error(f'Erreur de build. Code de retour : {process.poll()}')
