@@ -106,15 +106,24 @@ fun MainScreen() {
                 // Bouton GitHub
                 IconButton(
                     onClick = { 
-                        if (!githubAuth.isAuthenticated()) {
+                        if (githubAuth.isAuthenticated()) {
+                            githubAuth.clearToken()
+                        } else {
                             showGithubLogin = true
                         }
                     }
                 ) {
-                    Text(
-                        if (githubAuth.isAuthenticated()) "🔓" else "🔒",
-                        fontSize = 24.sp
-                    )
+                    Box(contentAlignment = Alignment.Center) {
+                        if (githubAuth.isAuthenticated()) {
+                            Text("🔓", fontSize = 24.sp)
+                            Text("Connecté", fontSize = 8.sp, color = Color.White, 
+                                modifier = Modifier.padding(top = 24.dp))
+                        } else {
+                            Text("🔒", fontSize = 24.sp)
+                            Text("Déconnecté", fontSize = 8.sp, color = Color.White,
+                                modifier = Modifier.padding(top = 24.dp))
+                        }
+                    }
                 }
             }
 
