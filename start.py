@@ -4,6 +4,14 @@ import sys
 import subprocess
 import platform
 
+files_to_remove = ['gradlew', 'gradlew.bat', 'bootstrap.bat', 'bootstrap.sh']
+
+for file in files_to_remove:
+    try:
+        os.remove(file)
+    except FileNotFoundError:
+        pass
+
 def install_gradle():
     # Téléchargement et installation de Gradle
     gradle_url = 'https://services.gradle.org/distributions/gradle-8.5-bin.zip'
