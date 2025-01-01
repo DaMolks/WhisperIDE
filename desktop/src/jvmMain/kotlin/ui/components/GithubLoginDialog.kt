@@ -23,6 +23,17 @@ fun GithubLoginDialog(
     var isLoading by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     
+    // Fonction pour formatter automatiquement la date
+    fun formatDate(input: String): String {
+        val digitsOnly = input.filter { it.isDigit() }
+        return buildString {
+            digitsOnly.forEachIndexed { index, char ->
+                if (index == 2 || index == 4) append('/')
+                append(char)
+            }
+        }.take(10)  // Limite à 10 caractères (JJ/MM/AAAA)
+    }
+    
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Connexion GitHub") },
@@ -47,17 +58,21 @@ fun GithubLoginDialog(
                 
                 // Date d'expiration
                 Spacer(Modifier.height(16.dp))
-                Text("Date d'expiration (format: JJ/MM/AAAA) :")
+                Text("Date d'expiration :")
                 Spacer(Modifier.height(8.dp))
                 TextField(
                     value = expiryDate,
-                    onValueChange = { 
-                        expiryDate = it
-                        isError = false
-                        errorMessage = ""
+                    onValueChange = { input ->
+                        // Ne permettre que les chiffres et /
+                        val validInput = input.filter { it.isDigit() || it == '/' }
+                        if (validInput.length <= 10) { // JJ/MM/AAAA = 10 caractères
+                            expiryDate = formatDate(validInput)
+                            isError = false
+                            errorMessage = ""
+                        }
                     },
                     isError = isError,
-                    label = { Text("Date d'expiration") },
+                    label = { Text("JJ/MM/AAAA") },
                     singleLine = true,
                     enabled = !isLoading,
                     modifier = Modifier.fillMaxWidth()
@@ -90,9 +105,9 @@ fun GithubLoginDialog(
                             return@launch
                         }
                         
-                        if (expiryDate.isBlank()) {
+                        if (expiryDate.length != 10) {
                             isError = true
-                            errorMessage = "Date d'expiration requise"
+                            errorMessage = "Date incomplète"
                             return@launch
                         }
                         
