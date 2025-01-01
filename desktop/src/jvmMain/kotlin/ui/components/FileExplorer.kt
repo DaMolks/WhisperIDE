@@ -13,55 +13,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import github.GithubManager
 import kotlinx.coroutines.launch
-import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import java.io.File
-
-class GitSyncManager(private val projectPath: String, private val githubToken: String, private val repoUrl: String) {
-    private val git: Git = Git.open(File(projectPath))
-
-    suspend fun syncWithRemote() = withContext(Dispatchers.IO) {
-        try {
-            // Pull changes from remote
-            git.pull()
-                .setCredentialsProvider(UsernamePasswordCredentialsProvider(githubToken, ""))
-                .call()
-
-            // Add all changes
-            git.add()
-                .addFilepattern(".")
-                .call()
-
-            // Commit changes
-            git.commit()
-                .setMessage("Synchronization from WhisperIDE")
-                .call()
-
-            // Push to remote
-            git.push()
-                .setCredentialsProvider(UsernamePasswordCredentialsProvider(githubToken, ""))
-                .call()
-
-            true
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false
-        }
-    }
-}
 
 @Composable
 fun FileExplorer(
     rootPath: File,
-    githubSyncManager: GitSyncManager? = null,
+    githubManager: GithubManager? = null,
     onFileSelected: (File) -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expandedPaths by remember { mutableStateOf(setOf<String>()) }
     var isSyncing by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
     
     Column(
         modifier = modifier
@@ -97,15 +62,20 @@ fun FileExplorer(
             }
             
             // Bouton de synchronisation GitHub
-            if (githubSyncManager != null) {
+            if (githubManager != null) {
                 IconButton(
                     onClick = {
-                        isSyncing = true
-                        // Lancer la synchronisation de manière asynchrone
-                        kotlinx.coroutines.GlobalScope.launch {
-                            val success = githubSyncManager.syncWithRemote()
-                            isSyncing = false
-                            // Gérer le résultat (afficher un message, etc.)
+                        coroutineScope.launch {
+                            isSyncing = true
+                            try {
+                                // Utilisez la méthode syncFiles de votre GithubManager
+                                githubManager.syncFiles(rootPath.absolutePath, rootPath.name)
+                            } catch (e: Exception) {
+                                // Gérer l'erreur (vous pouvez ajouter un système de notification)
+                                e.printStackTrace()
+                            } finally {
+                                isSyncing = false
+                            }
                         }
                     },
                     enabled = !isSyncing
