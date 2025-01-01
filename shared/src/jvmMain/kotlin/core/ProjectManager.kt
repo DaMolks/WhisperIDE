@@ -2,10 +2,12 @@ package core
 
 class ProjectManager {
     fun createNewProject(name: String, path: String) {
-        // TODO: Implement project creation logic
+        println("Création du projet : $name dans $path")
+        // TODO : Implémenter la logique de création de projet
     }
 
     fun openProject(path: String) {
-        // TODO: Implement project opening logic
+        println("Ouverture du projet : $path")
+        // TODO : Implémenter la logique d'ouverture de projet
     }
 }
