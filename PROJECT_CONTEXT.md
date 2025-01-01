@@ -1,19 +1,29 @@
 # WhisperIDE - Contexte du Projet
 
-## 🌈 Système de Thème
-### Composant `WhisperTheme.kt`
-- Gestion centralisée des thèmes
-- Support mode sombre/clair
-- Définition de palettes de couleurs personnalisées
-- Système de composition locale pour le thème
+## 🌐 Nouveau Layout Principal
+### Composant `WhisperMainLayout.kt`
+- Architecture centrée sur l'interaction IA
+- Navigation modulaire entre écrans
+- Support du mode sombre/clair
+- Drawer latéral personnalisable
+
+#### Écrans Principaux
+- Chat IA (principal)
+- Gestion de Projets
+- Édition de Code
 
 #### Fonctionnalités Clés
-- `WhisperColorScheme` : Définition des couleurs
-- `WhisperThemeState` : Gestionnaire dynamique de thème
-- Méthode `toggleTheme()` pour basculer entre modes
-- Intégration avec Material Design
+- Barre de navigation inférieure dynamique
+- Drawer de navigation latéral
+- Barre supérieure avec actions contextuelles
+- Support de l'état global de l'application
 
-### Prochaines Étapes
-- Intégrer le thème dans les composants principaux
-- Ajouter persistence des préférences de thème
-- Créer des variants de thème personnalisables
+### Principes de Conception
+- Priorité à l'interaction conversationnelle
+- Accès rapide aux fonctionnalités IDE
+- Expérience utilisateur fluide et intuitive
+
+### Étapes Suivantes
+- Implémenter les écrans de base
+- Développer les interactions entre écrans
+- Intégrer la logique métier existante
