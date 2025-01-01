@@ -15,9 +15,8 @@ import github.GithubAuth
 import github.GithubManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import ui.components.GithubLoginDialog
+import ui.components.*
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 // Instances globales pour la gestion de GitHub
 private val githubAuth = GithubAuth()
@@ -91,6 +90,7 @@ fun LoadingScreen() {
 fun MainScreen() {
     var showSettings by remember { mutableStateOf(false) }
     var showGithubLogin by remember { mutableStateOf(false) }
+    var showLogoutConfirm by remember { mutableStateOf(false) }
     
     Box(modifier = Modifier.fillMaxSize()) {
         Row(modifier = Modifier.fillMaxSize()) {
@@ -114,7 +114,7 @@ fun MainScreen() {
                     IconButton(
                         onClick = { 
                             if (githubAuth.isAuthenticated()) {
-                                githubAuth.clearToken()
+                                showLogoutConfirm = true
                             } else {
                                 showGithubLogin = true
                             }
@@ -140,17 +140,7 @@ fun MainScreen() {
                         )
                         
                         githubAuth.expirationDate?.let { expDate ->
-                            val formatter = remember { DateTimeFormatter.ofPattern("dd/MM/yyyy") }
-                            Text(
-                                "Expire le\n${expDate.format(formatter)}",
-                                fontSize = 8.sp,
-                                color = if (expDate.isAfter(LocalDateTime.now()))
-                                    Color(0xFF7FFF7F) else Color(0xFFFF7F7F),
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(top = 4.dp)
-                            )
+                            ExpirationDisplay(expDate)
                         }
                     } else {
                         Text(
@@ -221,6 +211,16 @@ fun MainScreen() {
             GithubLoginDialog(
                 auth = githubAuth,
                 onDismiss = { showGithubLogin = false }
+            )
+        }
+        
+        if (showLogoutConfirm) {
+            LogoutConfirmation(
+                onConfirm = {
+                    githubAuth.clearToken()
+                    showLogoutConfirm = false
+                },
+                onDismiss = { showLogoutConfirm = false }
             )
         }
     }
