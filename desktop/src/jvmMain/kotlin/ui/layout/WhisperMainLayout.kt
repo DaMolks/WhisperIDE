@@ -6,7 +6,9 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import ui.components.*
 import ui.theme.WhisperTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -26,7 +28,7 @@ fun WhisperMainLayout() {
                         }
                     },
                     actions = {
-                        IconButton(onClick = { /* Paramètres */ }) {
+                        IconButton(onClick = { selectedScreen = WhisperScreen.Settings }) {
                             Icon(Icons.Default.Settings, contentDescription = "Paramètres")
                         }
                     }
@@ -34,14 +36,16 @@ fun WhisperMainLayout() {
             },
             bottomBar = {
                 NavigationBar {
-                    WhisperScreen.values().forEach { screen ->
-                        NavigationBarItem(
-                            icon = { Icon(screen.icon, contentDescription = screen.title) },
-                            label = { Text(screen.title) },
-                            selected = selectedScreen == screen,
-                            onClick = { selectedScreen = screen }
-                        )
-                    }
+                    WhisperScreen.values()
+                        .filterNot { it == WhisperScreen.Settings }
+                        .forEach { screen ->
+                            NavigationBarItem(
+                                icon = { Icon(screen.icon, contentDescription = screen.title) },
+                                label = { Text(screen.title) },
+                                selected = selectedScreen == screen,
+                                onClick = { selectedScreen = screen }
+                            }
+                        }
                 }
             },
             drawerContent = {
@@ -52,22 +56,23 @@ fun WhisperMainLayout() {
                         label = { Text("Fichiers") },
                         icon = { Icon(Icons.Default.Folder, contentDescription = "Fichiers") },
                         selected = false,
-                        onClick = { /* Ouvrir explorateur de fichiers */ }
+                        onClick = { /* TODO: Implémenter l'ouverture de l'explorateur de fichiers */ }
                     )
                     NavigationDrawerItem(
-                        label = { Text("Thème") },
-                        icon = { Icon(Icons.Default.DarkMode, contentDescription = "Thème") },
+                        label = { Text("Paramètres") },
+                        icon = { Icon(Icons.Default.Settings, contentDescription = "Paramètres") },
                         selected = false,
-                        onClick = { /* Changer de thème */ }
+                        onClick = { selectedScreen = WhisperScreen.Settings }
                     )
                 }
             },
             content = { padding ->
                 Box(modifier = Modifier.padding(padding)) {
                     when (selectedScreen) {
-                        WhisperScreen.Chat -> ChatScreen()
-                        WhisperScreen.Projects -> ProjectScreen()
-                        WhisperScreen.Code -> CodeScreen()
+                        WhisperScreen.Chat -> ChatInterface()
+                        WhisperScreen.Projects -> ProjectManagementScreen()
+                        WhisperScreen.Code -> CodeEditorScreen()
+                        WhisperScreen.Settings -> SettingsScreen()
                     }
                 }
             }
@@ -79,30 +84,6 @@ fun WhisperMainLayout() {
 enum class WhisperScreen(val title: String, val icon: ImageVector) {
     Chat("Chat", Icons.Default.Chat),
     Projects("Projets", Icons.Default.FolderOpen),
-    Code("Code", Icons.Default.Code)
-}
-
-// Écrans de base à implémenter
-@Composable
-fun ChatScreen() {
-    // TODO: Implémenter l'écran de chat IA
-    Box(modifier = Modifier.fillMaxSize()) {
-        Text("Écran de Chat IA")
-    }
-}
-
-@Composable
-fun ProjectScreen() {
-    // TODO: Implémenter l'écran de gestion de projets
-    Box(modifier = Modifier.fillMaxSize()) {
-        Text("Écran de Projets")
-    }
-}
-
-@Composable
-fun CodeScreen() {
-    // TODO: Implémenter l'écran d'édition de code
-    Box(modifier = Modifier.fillMaxSize()) {
-        Text("Écran d'Édition de Code")
-    }
+    Code("Code", Icons.Default.Code),
+    Settings("Paramètres", Icons.Default.Settings)
 }
