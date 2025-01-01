@@ -1,23 +1,23 @@
 # WhisperIDE - Contexte du Projet
 
-## 📁 Gestion de Projets
-### Composant `ProjectManagementScreen.kt`
-- Interface de gestion de projets modulaire
-- Support de création et suppression de projets
-- Affichage dynamique des projets
+## 📝 Éditeur de Code
+### Composant `CodeEditorScreen.kt`
+- Interface d'édition de code modulaire
+- Support multi-langage
+- Fonctionnalités de base d'édition
 
 #### Fonctionnalités Clés
-- Liste des projets avec détails
-- Dialogue de création de projet
-- Boutons d'action par projet
+- Sélection dynamique du langage
+- Zone d'édition extensible
+- Boutons d'action principaux
 
 ### Architecture
-- Modèle de données `ProjectInfo`
-- Gestion d'état avec `remember`
-- Composant de projet personnalisable
+- Gestion d'état pour le code et le langage
+- Support de plusieurs langages de programmation
+- Interface utilisateur intuitive
 
 ### Points à Développer
-- Persistance des données de projet
-- Intégration avec le gestionnaire de fichiers
-- Validation des noms de projet
-- Suivi des modifications de projet
+- Coloration syntaxique
+- Autocomplétion
+- Support de l'indentation
+- Gestion avancée des fichiers
