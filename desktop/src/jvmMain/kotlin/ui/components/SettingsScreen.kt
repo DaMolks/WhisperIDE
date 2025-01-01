@@ -12,10 +12,8 @@ import androidx.compose.ui.unit.dp
 import ui.theme.WhisperTheme
 
 @Composable
-fun SettingsScreen(
-    themeState: WhisperTheme.ThemeState = WhisperTheme.defaultThemeState
-) {
-    var isDarkMode by remember { mutableStateOf(themeState.isDarkMode) }
+fun SettingsScreen() {
+    var isDarkMode by remember { mutableStateOf(true) }
 
     Column(
         modifier = Modifier
@@ -48,7 +46,7 @@ fun SettingsScreen(
                         checked = isDarkMode,
                         onCheckedChange = { 
                             isDarkMode = it
-                            themeState.toggleTheme() 
+                            // TODO: Implémenter le changement de thème
                         }
                     )
                 }
