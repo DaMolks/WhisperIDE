@@ -2,8 +2,6 @@ package ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -11,6 +9,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CodeEditorScreen() {
     var currentFile by remember { mutableStateOf<String?>(null) }
@@ -30,9 +29,10 @@ fun CodeEditorScreen() {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             // Sélection du langage
+            var expanded by remember { mutableStateOf(false) }
             ExposedDropdownMenuBox(
-                expanded = false,
-                onExpandedChange = {},
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded },
                 modifier = Modifier.width(150.dp)
             ) {
                 TextField(
@@ -40,19 +40,20 @@ fun CodeEditorScreen() {
                     onValueChange = {},
                     readOnly = true,
                     label = { Text("Langage") },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = false)
-                    },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                     colors = ExposedDropdownMenuDefaults.textFieldColors()
                 )
-                ExposedDropdownMenu(
-                    expanded = false,
-                    onDismissRequest = {}
+                DropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false }
                 ) {
                     supportedLanguages.forEach { lang ->
                         DropdownMenuItem(
                             text = { Text(lang) },
-                            onClick = { language = lang }
+                            onClick = { 
+                                language = lang
+                                expanded = false
+                            }
                         )
                     }
                 }
