@@ -7,10 +7,10 @@ import zipfile
 import logging
 import winreg
 from datetime import datetime
-import shutil
 import signal
 import threading
 import queue
+import re
 
 # Création du dossier logs
 log_dir = 'logs'
@@ -36,9 +36,46 @@ logging.basicConfig(
 process = None
 log_queue = queue.Queue()
 
+def is_important_message(line):
+    # Patterns pour les messages importants
+    important_patterns = [
+        r'error', r'fail', r'exception',  # Erreurs et échecs
+        r'warning',  # Avertissements
+        r'starting', r'finished',  # États importants
+        r'downloading', r'downloaded',  # Téléchargements
+        r'task\s+:',  # Tâches Gradle
+        r'>\s+Task\s+.*\s+FAILED',  # Tâches échouées
+        r'build\s+failed',  # Échec de build
+        r'CONFIGURE\s+SUCCESSFUL',  # Configuration réussie
+        r'BUILD\s+SUCCESSFUL',  # Build réussi
+    ]
+    
+    # Ignorer certains messages moins importants
+    ignore_patterns = [
+        r'file\s+event',
+        r'debug',
+        r'lifecycle',
+    ]
+    
+    line_lower = line.lower()
+    
+    # Ignorer les lignes correspondant aux patterns à ignorer
+    for pattern in ignore_patterns:
+        if re.search(pattern, line_lower):
+            return False
+            
+    # Garder les lignes correspondant aux patterns importants
+    for pattern in important_patterns:
+        if re.search(pattern, line_lower):
+            return True
+            
+    return False
+
 def enqueue_output(out, queue):
     for line in iter(out.readline, b''):
-        queue.put(line.decode('utf-8').strip())
+        line_str = line.decode('utf-8').strip()
+        if is_important_message(line_str):
+            queue.put(line_str)
     out.close()
 
 def signal_handler(sig, frame):
@@ -71,17 +108,20 @@ def install_gradle():
     gradle_install_dir = os.path.join(gradle_dir, 'gradle-8.5')
     gradle_bin = os.path.join(gradle_install_dir, 'bin')
     
-    os.makedirs(gradle_dir, exist_ok=True)
-    
-    logging.info('Téléchargement de Gradle...')
-    urllib.request.urlretrieve(gradle_url, gradle_zip)
-    
-    logging.info('Décompression de Gradle...')
-    with zipfile.ZipFile(gradle_zip, 'r') as zip_ref:
-        zip_ref.extractall(gradle_dir)
-    
+    if not os.path.exists(gradle_install_dir):
+        os.makedirs(gradle_dir, exist_ok=True)
+        
+        logging.info('Téléchargement de Gradle...')
+        urllib.request.urlretrieve(gradle_url, gradle_zip)
+        
+        logging.info('Décompression de Gradle...')
+        with zipfile.ZipFile(gradle_zip, 'r') as zip_ref:
+            zip_ref.extractall(gradle_dir)
+        
+        # Suppression du zip après extraction
+        os.remove(gradle_zip)
+        
     add_to_path(gradle_bin)
-    
     return os.path.join(gradle_bin, 'gradle.bat')
 
 def process_logs():
@@ -96,15 +136,15 @@ def process_logs():
 
 def main():
     global process
-    gradle_executable = install_gradle()
-    
     try:
+        gradle_executable = install_gradle()
+        
         logging.info('Lancement de la compilation...')
         process = subprocess.Popen(
-            [gradle_executable, 'desktop:run', '--info'], 
-            stdout=subprocess.PIPE, 
-            stderr=subprocess.STDOUT, 
-            text=False  # Pas de texte ici pour un meilleur contrôle de l'encodage
+            [gradle_executable, 'desktop:run', '--info'],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=False
         )
         
         # Thread pour collecter les logs
@@ -115,8 +155,11 @@ def main():
         # Traitement des logs dans le thread principal
         process_logs()
         
-        if process.poll() != 0:
-            logging.error(f'Erreur de build. Code de retour : {process.poll()}')
+        return_code = process.poll()
+        if return_code != 0:
+            logging.error(f'Erreur de build. Code de retour : {return_code}')
+            sys.exit(return_code)
+            
     except Exception as e:
         logging.error(f'Erreur lors du lancement : {e}')
         sys.exit(1)
