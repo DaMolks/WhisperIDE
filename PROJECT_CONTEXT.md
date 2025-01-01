@@ -1,24 +1,23 @@
 # WhisperIDE - Contexte du Projet
 
-## 🥋 Interface de Chat IA
-### Composant `ChatInterface.kt`
-- Interface de chat conversationnel
-- Gestion dynamique des messages
-- Support des messages utilisateur et IA
+## 📁 Gestion de Projets
+### Composant `ProjectManagementScreen.kt`
+- Interface de gestion de projets modulaire
+- Support de création et suppression de projets
+- Affichage dynamique des projets
 
 #### Fonctionnalités Clés
-- Liste déroulante des messages
-- Champ de saisie multi-lignes
-- Différenciation visuelle des messages
-- Placeholder pour l'implémentation de la logique IA
+- Liste des projets avec détails
+- Dialogue de création de projet
+- Boutons d'action par projet
 
 ### Architecture
-- Utilisation de `LazyColumn` pour le rendu des messages
-- Gestion d'état avec `remember` et `mutableStateOf`
-- Composant de message personnalisable
+- Modèle de données `ProjectInfo`
+- Gestion d'état avec `remember`
+- Composant de projet personnalisable
 
 ### Points à Développer
-- Intégration avec le moteur IA
-- Gestion avancée des conversations
-- Persistance des conversations
-- Système de suggestion contextuelle
+- Persistance des données de projet
+- Intégration avec le gestionnaire de fichiers
+- Validation des noms de projet
+- Suivi des modifications de projet
