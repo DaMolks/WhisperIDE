@@ -2,23 +2,22 @@ package ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import github.GithubAuth
+import github.githubAuth
 
 @Composable
 fun Sidebar(
     showProjectManager: () -> Unit,
     showSettings: () -> Unit,
     showGithubLogin: () -> Unit,
-    showLogoutConfirm: () -> Unit,
-    auth: GithubAuth = githubAuth  // Injection de dépendance pour les tests
+    showLogoutConfirm: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -45,9 +44,9 @@ fun Sidebar(
             modifier = Modifier.width(60.dp)
         ) {
             SidebarIcon(
-                text = if (auth.isAuthenticated()) "🔓" else "🔒",
+                text = if (githubAuth.isAuthenticated()) "🔓" else "🔒",
                 onClick = { 
-                    if (auth.isAuthenticated()) {
+                    if (githubAuth.isAuthenticated()) {
                         showLogoutConfirm()
                     } else {
                         showGithubLogin()
@@ -55,7 +54,7 @@ fun Sidebar(
                 }
             )
             
-            if (auth.isAuthenticated()) {
+            if (githubAuth.isAuthenticated()) {
                 Text(
                     "Connecté",
                     fontSize = 8.sp,
@@ -64,7 +63,7 @@ fun Sidebar(
                     modifier = Modifier.fillMaxWidth()
                 )
                 
-                auth.expirationDate?.let { expDate ->
+                githubAuth.expirationDate?.let { expDate ->
                     ExpirationDisplay(expDate)
                 }
             } else {
