@@ -2,7 +2,6 @@
 import os
 import sys
 import subprocess
-import platform
 import urllib.request
 import zipfile
 
@@ -26,8 +25,8 @@ def main():
     gradle_executable = install_gradle()
     
     try:
-        subprocess.run([gradle_executable, 'desktop:run'], check=True)
-    except subprocess.CalledProcessError as e:
+        subprocess.Popen([gradle_executable, 'desktop:run'], shell=True)
+    except Exception as e:
         print(f'Erreur lors du lancement : {e}')
         sys.exit(1)
 
