@@ -3,18 +3,16 @@ package ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.whisperide.shared.project.projectManager
 
 @Composable
-fun MainContent(
-    projectManager: ProjectManager = com.whisperide.shared.project.projectManager  // Injection de dépendance pour les tests
-) {
+fun MainContent() {
     Row(modifier = Modifier.fillMaxSize()) {
         // Explorateur de fichiers
         Box(
@@ -24,7 +22,7 @@ fun MainContent(
         ) {
             projectManager.currentProject?.let { project ->
                 FileExplorer(
-                    rootPath = project.path,
+                    rootPath = project.pathFile,
                     onFileSelected = { /* TODO */ },
                     modifier = Modifier.fillMaxSize()
                 )
@@ -36,16 +34,16 @@ fun MainContent(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        "Aucun projet ouvert\nCliquez sur 📂 pour commencer",
+                        text = "Aucun projet ouvert\nCliquez sur 📂 pour commencer",
                         color = Color.White,
-                        fontSize = 12.sp,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(16.dp)
                     )
                 }
             }
         }
 
-        // Zone principale (code + chat)
+        // Zone principale
         Column(modifier = Modifier.weight(1f)) {
             TopAppBar(
                 title = {
