@@ -3,7 +3,7 @@
 ## 🚀 Vue d'Ensemble
 WhisperIDE est un environnement de développement intégré (IDE) innovant pour Android, conçu pour offrir une expérience de développement améliorée par l'IA.
 
-## 🔄 Refonte UI - Stratégie
+## 🗔 Refonte UI - Stratégie
 
 ### Objectifs Principaux
 - Centrer l'expérience utilisateur sur l'interaction IA
