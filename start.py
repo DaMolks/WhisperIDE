@@ -13,12 +13,6 @@ import shutil
 log_dir = 'logs'
 os.makedirs(log_dir, exist_ok=True)
 
-# Nettoyer les anciens logs
-for log_file in os.listdir(log_dir):
-    file_path = os.path.join(log_dir, log_file)
-    if os.path.isfile(file_path) and log_file != 'latest.log':
-        os.remove(file_path)
-
 # Nom du fichier log avec horodatage
 log_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 log_filename = os.path.join(log_dir, f'{log_timestamp}.log')
