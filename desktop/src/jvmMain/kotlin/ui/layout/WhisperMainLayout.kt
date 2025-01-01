@@ -48,7 +48,7 @@ fun WhisperMainLayout() {
                         }
                 }
             },
-            navigationDrawer = {
+            drawerContent = {
                 ModalDrawerSheet {
                     Text("WhisperIDE", modifier = Modifier.padding(16.dp))
                     Divider()
