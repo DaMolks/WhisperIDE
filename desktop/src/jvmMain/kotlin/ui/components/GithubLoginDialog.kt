@@ -44,7 +44,7 @@ fun GithubLoginDialog(
         confirmButton = {
             Button(onClick = {
                 if (token.isNotBlank()) {
-                    auth.setToken(token)
+                    auth.updateToken(token)
                     onDismiss()
                 } else {
                     isError = true
