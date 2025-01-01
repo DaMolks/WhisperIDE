@@ -66,3 +66,61 @@ fun App() {
         )
     }
 }
+
+@Composable
+fun LoadingScreen() {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color(0xFF2C3E50)),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            LinearProgressIndicator(
+                modifier = Modifier
+                    .fillMaxWidth(0.6f)
+                    .height(10.dp)
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                text = "WhisperIDE",
+                color = Color.White,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = "Chargement...",
+                color = Color(0xFF95A5A6),
+                fontSize = 16.sp
+            )
+        }
+    }
+}
+
+@Composable
+fun SidebarIcon(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .size(60.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        IconButton(
+            onClick = onClick,
+            modifier = Modifier.size(48.dp)
+        ) {
+            Text(
+                text = text,
+                fontSize = 24.sp,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
