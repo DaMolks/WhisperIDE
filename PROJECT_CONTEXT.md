@@ -1,23 +1,39 @@
 # WhisperIDE - Contexte du Projet
 
-## 📝 Éditeur de Code
-### Composant `CodeEditorScreen.kt`
-- Interface d'édition de code modulaire
-- Support multi-langage
-- Fonctionnalités de base d'édition
+## ⚙️ Écran de Paramètres
+### Composant `SettingsScreen.kt`
+- Interface de paramétrage modulaire
+- Gestion du thème jour/nuit
+- Architecture extensible
 
 #### Fonctionnalités Clés
-- Sélection dynamique du langage
-- Zone d'édition extensible
-- Boutons d'action principaux
+- Commutateur de thème sombre/clair
+- Support de futurs paramètres
+- Intégration avec le système de thème global
 
 ### Architecture
-- Gestion d'état pour le code et le langage
-- Support de plusieurs langages de programmation
-- Interface utilisateur intuitive
+- Utilisation de composants Material3
+- État du thème centralisé
+- Conception modulaire
 
 ### Points à Développer
-- Coloration syntaxique
-- Autocomplétion
-- Support de l'indentation
-- Gestion avancée des fichiers
+- Persistance des paramètres
+- Extension des options de configuration
+- Personnalisation avancée du thème
+
+## 💫 Bilan du Projet
+### Refonte Complète de l'UI
+- Focus sur l'interaction IA
+- Design modulaire et extensible
+- Support multi-écrans
+
+### Fonctionnalités Clés
+- Chat IA intégré
+- Gestion de projets
+- Éditeur de code
+- Paramétrage flexible
+
+### Perspectives
+- Amélioration continue
+- Ajout de fonctionnalités IA
+- Optimisation des interactions
