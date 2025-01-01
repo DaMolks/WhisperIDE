@@ -21,14 +21,24 @@ class GithubAuth {
     val expirationDate by _expirationDate
     
     init {
-        // Charger le token existant
-        val savedToken = storage.readSecurely("github_token")
-        if (savedToken != null) {
-            val parts = savedToken.split("|") 
-            if (parts.size == 2) {
-                _token.value = parts[0]
-                _expirationDate.value = LocalDateTime.parse(parts[1])
+        try {
+            // Charger le token existant
+            val savedToken = storage.readSecurely("github_token")
+            if (savedToken != null) {
+                val parts = savedToken.split("|") 
+                if (parts.size == 2) {
+                    _token.value = parts[0]
+                    _expirationDate.value = try {
+                        LocalDateTime.parse(parts[1])
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
             }
+        } catch (e: Exception) {
+            // En cas d'erreur, on nettoie tout
+            _token.value = null
+            _expirationDate.value = null
         }
     }
     
