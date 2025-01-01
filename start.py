@@ -25,17 +25,12 @@ latest_log = os.path.join(log_dir, 'latest.log')
 # Configuration du logging
 logging.basicConfig(
     filename=log_filename, 
-    level=logging.DEBUG, 
+    level=logging.INFO, 
     format='%(asctime)s - %(levelname)s: %(message)s'
 )
 
 # Copie vers latest.log
 shutil.copy2(log_filename, latest_log)
-
-# Logger console
-console_handler = logging.StreamHandler(sys.stdout)
-console_handler.setLevel(logging.INFO)
-logging.getLogger('').addHandler(console_handler)
 
 def add_to_path(path):
     try:
@@ -76,19 +71,23 @@ def main():
     try:
         logging.info('Lancement de la compilation...')
         process = subprocess.Popen(
-            [gradle_executable, 'desktop:run', '--info'], 
+            [gradle_executable, 'desktop:run'], 
             stdout=subprocess.PIPE, 
             stderr=subprocess.STDOUT, 
             text=True
         )
         
+        # Filtrer et afficher uniquement les messages importants
+        important_keywords = ['BUILD', 'ERROR', 'FAILURE', 'SUCCESS']
         while True:
             output = process.stdout.readline()
             if output == '' and process.poll() is not None:
                 break
             if output:
-                print(output.strip())  # Affichage dans le terminal
-                logging.info(output.strip())  # Log dans le fichier
+                # Filtre les messages importants
+                if any(keyword in output for keyword in important_keywords):
+                    print(output.strip())
+                    logging.info(output.strip())
         
         if process.poll() != 0:
             logging.error(f'Erreur de build. Code de retour : {process.poll()}')
