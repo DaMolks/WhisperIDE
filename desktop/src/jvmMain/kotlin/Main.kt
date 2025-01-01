@@ -87,6 +87,30 @@ fun LoadingScreen() {
 }
 
 @Composable
+fun SidebarIcon(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .size(60.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        IconButton(
+            onClick = onClick,
+            modifier = Modifier.size(48.dp)
+        ) {
+            Text(
+                text = text,
+                fontSize = 24.sp,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
 fun MainScreen() {
     var showSettings by remember { mutableStateOf(false) }
     var showGithubLogin by remember { mutableStateOf(false) }
@@ -99,19 +123,22 @@ fun MainScreen() {
                 modifier = Modifier
                     .width(60.dp)
                     .fillMaxHeight()
-                    .background(Color(0xFF2C3E50))
+                    .background(Color(0xFF2C3E50)),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Bouton paramètres
-                IconButton(onClick = { showSettings = true }) {
-                    Text("⚙️", fontSize = 24.sp)
-                }
+                SidebarIcon(
+                    text = "⚙️",
+                    onClick = { showSettings = true }
+                )
                 
-                // Bouton GitHub
+                // Bouton GitHub avec indicateurs
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.width(60.dp)
                 ) {
-                    IconButton(
+                    SidebarIcon(
+                        text = if (githubAuth.isAuthenticated()) "🔓" else "🔒",
                         onClick = { 
                             if (githubAuth.isAuthenticated()) {
                                 showLogoutConfirm = true
@@ -119,15 +146,7 @@ fun MainScreen() {
                                 showGithubLogin = true
                             }
                         }
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            if (githubAuth.isAuthenticated()) {
-                                Text("🔓", fontSize = 24.sp)
-                            } else {
-                                Text("🔒", fontSize = 24.sp)
-                            }
-                        }
-                    }
+                    )
                     
                     // Statut et date d'expiration
                     if (githubAuth.isAuthenticated()) {
