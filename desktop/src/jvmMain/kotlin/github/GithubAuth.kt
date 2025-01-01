@@ -5,16 +5,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 
 class GithubAuth {
-    var token by mutableStateOf<String?>(null)
-        private set
+    private var _token = mutableStateOf<String?>(null)
+    val token by _token
         
-    fun setToken(newToken: String) {
+    fun updateToken(newToken: String) {
         // TODO: Ajouter le chiffrement du token
-        token = newToken
+        _token.value = newToken
     }
     
     fun clearToken() {
-        token = null
+        _token.value = null
     }
     
     fun isAuthenticated() = token != null
