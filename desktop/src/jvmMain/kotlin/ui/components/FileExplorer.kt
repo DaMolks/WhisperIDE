@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.launch
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider
 import java.io.File
@@ -196,8 +197,8 @@ private fun FileTree(
         
         // Afficher le contenu du dossier si expandé
         if (file.isDirectory && file.absolutePath in expandedPaths) {
-            file.listFiles()\
-                ?.sortedWith(compareBy({ !it.isDirectory }, { it.name }))\
+            file.listFiles()
+                ?.sortedWith(compareBy({ !it.isDirectory }, { it.name }))
                 ?.forEach { child ->
                     FileTree(
                         file = child,
