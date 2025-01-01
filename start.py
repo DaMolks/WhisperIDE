@@ -6,15 +6,33 @@ import urllib.request
 import zipfile
 import logging
 import winreg
+from datetime import datetime
+import shutil
+
+# Création du dossier logs
+log_dir = 'logs'
+os.makedirs(log_dir, exist_ok=True)
+
+# Gestion des anciens logs
+for log_file in os.listdir(log_dir):
+    if log_file != 'latest.log':
+        os.remove(os.path.join(log_dir, log_file))
+
+# Nom du fichier log avec horodatage
+log_filename = os.path.join(log_dir, f'{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
+latest_log = os.path.join(log_dir, 'latest.log')
 
 # Configuration du logging
 logging.basicConfig(
-    filename='whisper_ide_build.log', 
+    filename=log_filename, 
     level=logging.DEBUG, 
     format='%(asctime)s - %(levelname)s: %(message)s'
 )
 
-# Logger console pour affichage terminal et fichier
+# Copie vers latest.log
+shutil.copy2(log_filename, latest_log)
+
+# Logger console
 console_handler = logging.StreamHandler(sys.stdout)
 console_handler.setLevel(logging.INFO)
 logging.getLogger('').addHandler(console_handler)
