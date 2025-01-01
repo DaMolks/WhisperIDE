@@ -14,6 +14,11 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s: %(message)s'
 )
 
+# Logger console pour affichage terminal et fichier
+console_handler = logging.StreamHandler(sys.stdout)
+console_handler.setLevel(logging.INFO)
+logging.getLogger('').addHandler(console_handler)
+
 def add_to_path(path):
     try:
         key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, r"Environment", 0, winreg.KEY_ALL_ACCESS)
@@ -39,6 +44,7 @@ def install_gradle():
     logging.info('Téléchargement de Gradle...')
     urllib.request.urlretrieve(gradle_url, gradle_zip)
     
+    logging.info('Décompression de Gradle...')
     with zipfile.ZipFile(gradle_zip, 'r') as zip_ref:
         zip_ref.extractall(gradle_dir)
     
@@ -52,7 +58,7 @@ def main():
     try:
         logging.info('Lancement de la compilation...')
         process = subprocess.Popen(
-            [gradle_executable, 'desktop:run'], 
+            [gradle_executable, 'desktop:run', '--info'], 
             stdout=subprocess.PIPE, 
             stderr=subprocess.STDOUT, 
             text=True
@@ -63,7 +69,8 @@ def main():
             if output == '' and process.poll() is not None:
                 break
             if output:
-                logging.info(output.strip())
+                print(output.strip())  # Affichage dans le terminal
+                logging.info(output.strip())  # Log dans le fichier
         
         if process.poll() != 0:
             logging.error(f'Erreur de build. Code de retour : {process.poll()}')
