@@ -10,7 +10,8 @@ kotlin {
     sourceSets {
         val jvmMain by getting {
             dependencies {
-                implementation(compose.desktop.currentOs)
+                implementation(compose.runtime)
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
             }
         }
     }
