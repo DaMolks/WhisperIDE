@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.whisperide.shared.project.projectManager
+import github.githubAuth
 
 @Composable
 fun MainScreen(showProjectManager: Boolean = false, onProjectManagerDismiss: () -> Unit = {}) {
@@ -22,7 +22,7 @@ fun MainScreen(showProjectManager: Boolean = false, onProjectManagerDismiss: () 
         Row(modifier = Modifier.fillMaxSize()) {
             // Sidebar
             Sidebar(
-                showProjectManager = { onProjectManagerDismiss() },
+                showProjectManager = onProjectManagerDismiss,
                 showSettings = { showSettings = true },
                 showGithubLogin = { showGithubLogin = true },
                 showLogoutConfirm = { showLogoutConfirm = true }
@@ -48,6 +48,7 @@ fun MainScreen(showProjectManager: Boolean = false, onProjectManagerDismiss: () 
         
         if (showGithubLogin) {
             GithubLoginDialog(
+                auth = githubAuth,
                 onDismiss = { showGithubLogin = false }
             )
         }
@@ -55,6 +56,7 @@ fun MainScreen(showProjectManager: Boolean = false, onProjectManagerDismiss: () 
         if (showLogoutConfirm) {
             LogoutConfirmation(
                 onConfirm = {
+                    githubAuth.clearToken()
                     showLogoutConfirm = false
                 },
                 onDismiss = { showLogoutConfirm = false }
