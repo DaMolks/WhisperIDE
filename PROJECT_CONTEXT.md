@@ -3,87 +3,43 @@
 ## 🚀 Vue d'Ensemble
 WhisperIDE est un environnement de développement intégré (IDE) innovant pour Android, conçu pour offrir une expérience de développement améliorée par l'IA.
 
-## 📐 Architecture Technique
-- **Langage**: Kotlin Multiplatform
-- **UI Framework**: Compose Desktop
-- **Build System**: Gradle
-- **Packaging**: GraalVM
-- **AI Integration**: Ollama
+## 🔄 Refonte UI - Stratégie
 
-## 🛠 Structure du Projet
-```
-WhisperIDE/
-├── shared/           # Logique métier partagée
-├── desktop/          # Interface et composants desktop
-│   └── src/
-│       └── jvmMain/
-│           ├── kotlin/
-│           │   ├── ui/           # Composants d'interface
-│           │   ├── github/       # Gestion GitHub
-│           │   └── core/         # Logiques centrales
-└── gradle/           # Configuration Gradle
-```
+### Objectifs Principaux
+- Centrer l'expérience utilisateur sur l'interaction IA
+- Rendre l'IDE secondaire par rapport à l'assistant conversationnel
+- Créer une interface modulaire et flexible
 
-## 🔍 Dernières Modifications Significatives
-### FileExplorer.kt
-- Ajout d'une synchronisation GitHub améliorée
-- Gestion des états de synchronisation
-- Amélioration de l'alignement UI
+### Composants Actuels à Refondre
+1. `MainScreen.kt` : Point d'entrée principal de l'UI
+2. `Sidebar.kt` : Navigation latérale
+3. `FileExplorer.kt` : Gestion des fichiers
+4. `MainContent.kt` : Contenu principal
+
+### Principes de Conception
+- Interface conversationnelle en premier plan
+- Outils IDE accessibles mais non intrusifs
+- Support du mode jour/nuit
+- Modularité maximale
+
+### Modifications Prévues
+- Nouveau design centré sur le chat IA
+- Menu latéral escamotable
+- Thème sombre par défaut
+- Système de gestion de thème dynamique
+
+## 🛠 Étapes de Mise en Œuvre
+1. Créer un nouveau composant de layout principal
+2. Développer un système de thème flexible
+3. Implémenter un menu latéral modulaire
+4. Intégrer le mode jour/nuit
 
 ## 🚧 Points d'Attention
-### Zones à Améliorer
-- Implémentation complète de la synchronisation GitHub
-- Gestion des erreurs dans les interactions GitHub
-- Optimisation des performances de l'explorateur de fichiers
+- Garder la logique métier existante
+- Minimiser les modifications dans les composants de logique
+- Assurer la compatibilité avec les fonctionnalités existantes
 
-### Limitations Connues
-- Synchronisation GitHub basique
-- Gestion d'erreurs minimale
-- Support multiplateforme à consolider
-
-## 🧩 Dépendances Clés
-- Kotlin 1.9.0
-- Compose Desktop 1.5.10
-- Kotlinx Coroutines
-- JGit pour interactions GitHub
-
-## 🎯 Vision Produit
-Créer un IDE Android intelligent qui :
-- Facilite le développement mobile
-- Intègre l'IA de manière transparente
-- Offre une expérience utilisateur fluide
-- Simplifie la gestion de projet
-
-## 🛤️ Roadmap Potentielle
-1. Amélioration de l'intégration GitHub
-2. Développement des fonctionnalités d'IA
-3. Optimisation des performances
-4. Extension du support multiplateforme
-
-## 🔧 Configuration de Développement
-### Prérequis
-- JDK 17+
-- Kotlin 1.9.0
-- Gradle 8.5
-
-### Commandes Principales
-```bash
-# Compiler le projet
-./gradlew build
-
-# Lancer l'application desktop
-./gradlew desktop:run
-```
-
-## 📌 Conventions de Développement
-- Suivre les conventions Kotlin
-- Documenter les nouvelles fonctionnalités
-- Écrire des tests unitaires
-- Utiliser des imports explicites
-- Gestion des erreurs explicite
-
-## 🤝 Contribution
-Consulter le fichier CONTRIBUTING.md pour les détails sur la contribution au projet.
-
-## 📞 Contact
-Pour plus d'informations, contacter le mainteneur principal.
+## 📅 Prochaines Étapes
+- Concevoir le nouveau layout
+- Implémenter le gestionnaire de thème
+- Tester l'intégration des composants
