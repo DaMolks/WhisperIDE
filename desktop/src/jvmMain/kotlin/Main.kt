@@ -10,8 +10,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import github.GithubAuth
+import github.GithubManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import ui.components.GithubLoginDialog
+
+// Instances globales pour la gestion de GitHub
+private val githubAuth = GithubAuth()
+private val githubManager = GithubManager(githubAuth)
 
 fun main() = application {
     Window(
@@ -31,7 +38,6 @@ fun App() {
 
     LaunchedEffect(Unit) {
         scope.launch {
-            // Simuler un chargement
             delay(2000)
             isLoading = false
         }
@@ -81,7 +87,8 @@ fun LoadingScreen() {
 @Composable
 fun MainScreen() {
     var showSettings by remember { mutableStateOf(false) }
-
+    var showGithubLogin by remember { mutableStateOf(false) }
+    
     Box(modifier = Modifier.fillMaxSize()) {
         Row(modifier = Modifier.fillMaxSize()) {
             // Barre latérale gauche
@@ -91,8 +98,23 @@ fun MainScreen() {
                     .fillMaxHeight()
                     .background(Color(0xFF2C3E50))
             ) {
+                // Bouton paramètres
                 IconButton(onClick = { showSettings = true }) {
                     Text("⚙️", fontSize = 24.sp)
+                }
+                
+                // Bouton GitHub
+                IconButton(
+                    onClick = { 
+                        if (!githubAuth.isAuthenticated()) {
+                            showGithubLogin = true
+                        }
+                    }
+                ) {
+                    Text(
+                        if (githubAuth.isAuthenticated()) "🔓" else "🔒",
+                        fontSize = 24.sp
+                    )
                 }
             }
 
@@ -135,7 +157,7 @@ fun MainScreen() {
             }
         }
 
-        // Dialog des paramètres
+        // Dialogs
         if (showSettings) {
             AlertDialog(
                 onDismissRequest = { showSettings = false },
@@ -146,6 +168,13 @@ fun MainScreen() {
                         Text("Fermer")
                     }
                 }
+            )
+        }
+        
+        if (showGithubLogin) {
+            GithubLoginDialog(
+                auth = githubAuth,
+                onDismiss = { showGithubLogin = false }
             )
         }
     }
