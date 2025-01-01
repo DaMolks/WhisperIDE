@@ -6,6 +6,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
@@ -15,6 +16,8 @@ import github.GithubManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ui.components.GithubLoginDialog
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 // Instances globales pour la gestion de GitHub
 private val githubAuth = GithubAuth()
@@ -104,25 +107,59 @@ fun MainScreen() {
                 }
                 
                 // Bouton GitHub
-                IconButton(
-                    onClick = { 
-                        if (githubAuth.isAuthenticated()) {
-                            githubAuth.clearToken()
-                        } else {
-                            showGithubLogin = true
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.width(60.dp)
+                ) {
+                    IconButton(
+                        onClick = { 
+                            if (githubAuth.isAuthenticated()) {
+                                githubAuth.clearToken()
+                            } else {
+                                showGithubLogin = true
+                            }
+                        }
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            if (githubAuth.isAuthenticated()) {
+                                Text("🔓", fontSize = 24.sp)
+                            } else {
+                                Text("🔒", fontSize = 24.sp)
+                            }
                         }
                     }
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        if (githubAuth.isAuthenticated()) {
-                            Text("🔓", fontSize = 24.sp)
-                            Text("Connecté", fontSize = 8.sp, color = Color.White, 
-                                modifier = Modifier.padding(top = 24.dp))
-                        } else {
-                            Text("🔒", fontSize = 24.sp)
-                            Text("Déconnecté", fontSize = 8.sp, color = Color.White,
-                                modifier = Modifier.padding(top = 24.dp))
+                    
+                    // Statut et date d'expiration
+                    if (githubAuth.isAuthenticated()) {
+                        Text(
+                            "Connecté",
+                            fontSize = 8.sp,
+                            color = Color.White,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        
+                        githubAuth.expirationDate?.let { expDate ->
+                            val formatter = remember { DateTimeFormatter.ofPattern("dd/MM/yyyy") }
+                            Text(
+                                "Expire le\n${expDate.format(formatter)}",
+                                fontSize = 8.sp,
+                                color = if (expDate.isAfter(LocalDateTime.now()))
+                                    Color(0xFF7FFF7F) else Color(0xFFFF7F7F),
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 4.dp)
+                            )
                         }
+                    } else {
+                        Text(
+                            "Déconnecté",
+                            fontSize = 8.sp,
+                            color = Color.White,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
                 }
             }
