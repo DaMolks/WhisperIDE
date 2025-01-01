@@ -1,9 +1,22 @@
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.Alignment
 import ui.MainView
 
 fun main() = application {
-    Window(onCloseRequest = ::exitApplication, title = "WhisperIDE") {
+    val windowState = rememberWindowState(
+        width = 1200.dp,
+        height = 800.dp,
+        position = WindowPosition(Alignment.Center)
+    )
+
+    Window(
+        onCloseRequest = ::exitApplication, 
+        title = "WhisperIDE", 
+        state = windowState
+    ) {
         MainView()
     }
 }
