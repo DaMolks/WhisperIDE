@@ -6,12 +6,14 @@ import androidx.compose.runtime.setValue
 import com.whisperide.shared.utils.SecureStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.io.File
 
 class ProjectManager(private val workspacePath: File) {
     private var _currentProject by mutableStateOf<Project?>(null)
     private val storage = SecureStorage(File(System.getProperty("user.home"), ".whisperide"))
+    private val json = Json { prettyPrint = true }
     
     val currentProject: Project?
         get() = _currentProject
@@ -30,14 +32,14 @@ class ProjectManager(private val workspacePath: File) {
     private fun loadProject(projectDir: File): Project {
         val configFile = File(projectDir, ".whisperide/config.json")
         val config = if (configFile.exists()) {
-            Json.decodeFromString<ProjectConfig>(configFile.readText())
+            json.decodeFromString<ProjectConfig>(configFile.readText())
         } else {
             ProjectConfig()
         }
         
         return Project(
             name = projectDir.name,
-            path = projectDir,
+            path = projectDir.absolutePath,
             config = config
         )
     }
@@ -57,7 +59,11 @@ class ProjectManager(private val workspacePath: File) {
         File(projectDir, "src").mkdirs()
         
         // Créer le projet
-        val project = Project(name, projectDir, githubRepo)
+        val project = Project(
+            name = name,
+            path = projectDir.absolutePath,
+            githubRepo = githubRepo
+        )
         
         // Sauvegarder la configuration
         saveProjectConfig(project)
@@ -66,7 +72,7 @@ class ProjectManager(private val workspacePath: File) {
     }
     
     private fun saveProjectConfig(project: Project) {
-        val configJson = Json.encodeToString(ProjectConfig.serializer(), project.config)
+        val configJson = json.encodeToString(project.config)
         project.configFile.writeText(configJson)
     }
     
