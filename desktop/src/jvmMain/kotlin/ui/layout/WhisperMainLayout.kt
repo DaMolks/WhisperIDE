@@ -44,11 +44,11 @@ fun WhisperMainLayout() {
                                 label = { Text(screen.title) },
                                 selected = selectedScreen == screen,
                                 onClick = { selectedScreen = screen }
-                            }
+                            )
                         }
                 }
             },
-            drawerContent = {
+            drawerContent = { drawerPadding ->
                 ModalDrawerSheet {
                     Text("WhisperIDE", modifier = Modifier.padding(16.dp))
                     Divider()
