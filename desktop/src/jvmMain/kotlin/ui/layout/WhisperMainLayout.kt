@@ -17,21 +17,19 @@ import ui.theme.WhisperTheme
 @Composable
 fun WhisperMainLayout() {
     var isChatVisible by remember { mutableStateOf(true) }
-    var isDarkTheme by remember { mutableStateOf(false) }
+    var isDarkTheme by remember { mutableStateOf(isSystemInDarkTheme()) }
     var showSettings by remember { mutableStateOf(false) }
-    
-    // Détection du thème système
-    val systemTheme = isSystemInDarkTheme()
-    SideEffect {
-        isDarkTheme = systemTheme
-    }
 
     WhisperTheme(darkTheme = isDarkTheme) {
-        Box(modifier = Modifier.fillMaxSize()) {
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
             if (showSettings) {
                 SettingsScreen(
                     isDarkTheme = isDarkTheme,
-                    onThemeChanged = { isDarkTheme = it }
+                    onThemeChanged = { isDarkTheme = it },
+                    onBack = { showSettings = false }
                 )
             } else {
                 Column(modifier = Modifier.fillMaxSize()) {
@@ -45,14 +43,21 @@ fun WhisperMainLayout() {
                             IconButton(onClick = { showSettings = true }) {
                                 Icon(Icons.Default.Settings, contentDescription = "Paramètres")
                             }
-                        }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            titleContentColor = MaterialTheme.colorScheme.onSurface
+                        )
                     )
 
                     // Layout principal
                     Row(modifier = Modifier.fillMaxSize().weight(1f)) {
-                        // Navigation des fichiers (style explorateur)
+                        // Navigation des fichiers
                         Card(
-                            modifier = Modifier.width(250.dp).fillMaxHeight().padding(8.dp)
+                            modifier = Modifier.width(250.dp).fillMaxHeight().padding(8.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surface
+                            )
                         ) {
                             Column(modifier = Modifier.padding(8.dp)) {
                                 Text("Explorateur", style = MaterialTheme.typography.titleMedium)
@@ -60,39 +65,50 @@ fun WhisperMainLayout() {
                             }
                         }
 
-                        // Zone principale de code et output
+                        // Zone principale
                         Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
-                            // Éditeur de code (2/3 de l'espace)
                             Card(
-                                modifier = Modifier.weight(0.65f).fillMaxWidth().padding(8.dp)
+                                modifier = Modifier.weight(0.65f).fillMaxWidth().padding(8.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surface
+                                )
                             ) {
                                 CodeEditorScreen()
                             }
 
-                            // Zone de sortie/logs/preview (1/3 de l'espace)
                             Card(
-                                modifier = Modifier.weight(0.35f).fillMaxWidth().padding(8.dp)
+                                modifier = Modifier.weight(0.35f).fillMaxWidth().padding(8.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surface
+                                )
                             ) {
                                 Column(modifier = Modifier.padding(8.dp)) {
-                                    Text("Console / Preview", style = MaterialTheme.typography.titleMedium)
-                                    // Tabs pour différentes vues
-                                    TabRow(selectedTabIndex = 0) {
+                                    Text("Console", style = MaterialTheme.typography.titleMedium)
+                                    TabRow(
+                                        selectedTabIndex = 0,
+                                        containerColor = MaterialTheme.colorScheme.surface
+                                    ) {
                                         Tab(selected = true, onClick = { }, text = { Text("Console") })
                                         Tab(selected = false, onClick = { }, text = { Text("Sortie") })
                                         Tab(selected = false, onClick = { }, text = { Text("Preview") })
                                     }
-                                    // Zone de contenu
                                     Box(modifier = Modifier.fillMaxSize().padding(top = 8.dp)) {
-                                        Text("// Sortie du programme s'affichera ici", style = MaterialTheme.typography.bodyMedium)
+                                        Text(
+                                            "// Sortie du programme s'affichera ici",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
                                     }
                                 }
                             }
                         }
 
-                        // Panel de chat IA (plus large)
                         if (isChatVisible) {
                             Card(
-                                modifier = Modifier.width(400.dp).fillMaxHeight().padding(8.dp)
+                                modifier = Modifier.width(400.dp).fillMaxHeight().padding(8.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.surface
+                                )
                             ) {
                                 Column(modifier = Modifier.padding(8.dp)) {
                                     Row(
