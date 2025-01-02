@@ -1,160 +1,134 @@
 package ui.components
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import github.GithubAuth
-import kotlinx.coroutines.launch
+import github.githubAuth
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GithubLoginDialog(
-    auth: GithubAuth,
-    onDismiss: () -> Unit
+fun GitHubLoginDialog(
+    onDismissRequest: () -> Unit,
+    onTokenValidated: () -> Unit
 ) {
     var token by remember { mutableStateOf("") }
-    var expiryDate by remember { mutableStateOf("") }
-    var isError by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
-    
-    // Fonction pour formatter automatiquement la date
-    fun formatDate(input: String): String {
-        val digitsOnly = input.filter { it.isDigit() }
-        return buildString {
-            digitsOnly.forEachIndexed { index, char ->
-                if (index == 2 || index == 4) append('/')
-                append(char)
-            }
-        }.take(10)  // Limite à 10 caractères (JJ/MM/AAAA)
-    }
-    
+    var expirationDate by remember { mutableStateOf(LocalDate.now().plusDays(30)) }
+    var showDatePicker by remember { mutableStateOf(false) }
+    var showErrorMessage by remember { mutableStateOf(false) }
+
     AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Connexion GitHub") },
+        onDismissRequest = onDismissRequest,
+        title = {
+            Text("Configuration GitHub")
+        },
         text = {
-            Column {
-                // Token GitHub
-                Text("Entrez votre token d'accès GitHub :")
-                Spacer(Modifier.height(8.dp))
-                TextField(
+            Column(
+                modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                if (showErrorMessage) {
+                    Text(
+                        "Token invalide ou champs manquants",
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+
+                OutlinedTextField(
                     value = token,
                     onValueChange = { 
                         token = it
-                        isError = false
-                        errorMessage = ""
+                        showErrorMessage = false
                     },
-                    isError = isError,
-                    label = { Text("Personal Access Token") },
-                    singleLine = true,
-                    enabled = !isLoading,
-                    modifier = Modifier.fillMaxWidth()
+                    label = { Text("Token GitHub") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
                 )
-                
-                // Date d'expiration
-                Spacer(Modifier.height(16.dp))
-                Text("Date d'expiration :")
-                Spacer(Modifier.height(8.dp))
-                TextField(
-                    value = expiryDate,
-                    onValueChange = { input ->
-                        // Ne permettre que les chiffres et /
-                        val validInput = input.filter { it.isDigit() || it == '/' }
-                        if (validInput.length <= 10) { // JJ/MM/AAAA = 10 caractères
-                            expiryDate = formatDate(validInput)
-                            isError = false
-                            errorMessage = ""
+
+                OutlinedTextField(
+                    value = expirationDate.toString(),
+                    onValueChange = { },
+                    label = { Text("Date d'expiration") },
+                    modifier = Modifier.fillMaxWidth(),
+                    readOnly = true,
+                    trailingIcon = {
+                        IconButton(onClick = { showDatePicker = true }) {
+                            Icon(Icons.Default.DateRange, "Sélectionner une date")
                         }
-                    },
-                    isError = isError,
-                    label = { Text("JJ/MM/AAAA") },
-                    singleLine = true,
-                    enabled = !isLoading,
-                    modifier = Modifier.fillMaxWidth()
+                    }
                 )
                 
-                if (isError) {
-                    Spacer(Modifier.height(8.dp))
-                    Text(
-                        errorMessage,
-                        color = MaterialTheme.colors.error,
-                        style = MaterialTheme.typography.caption
-                    )
+                if (showDatePicker) {
+                    DatePickerDialog(
+                        onDismissRequest = { showDatePicker = false },
+                        confirmButton = {
+                            TextButton(onClick = { showDatePicker = false }) {
+                                Text("OK")
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showDatePicker = false }) {
+                                Text("Annuler")
+                            }
+                        }
+                    ) {
+                        DatePicker(
+                            state = rememberDatePickerState(
+                                initialSelectedDateMillis = expirationDate
+                                    .atStartOfDay()
+                                    .toInstant(java.time.ZoneOffset.UTC)
+                                    .toEpochMilli()
+                            ),
+                            showModeToggle = false,
+                            title = { Text("Date d'expiration") }
+                        )
+                    }
                 }
-                
-                if (isLoading) {
-                    Spacer(Modifier.height(8.dp))
-                    LinearProgressIndicator(
-                        modifier = Modifier.fillMaxWidth()
-                    )
+
+                if (githubAuth.isAuthenticated()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            "Token valide pendant encore ${githubAuth.getRemainingDays()} jours",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        TextButton(
+                            onClick = {
+                                githubAuth.clearCredentials()
+                                token = ""
+                            }
+                        ) {
+                            Text("Déconnexion")
+                        }
+                    }
                 }
             }
         },
         confirmButton = {
             Button(
                 onClick = {
-                    scope.launch {
-                        if (token.isBlank()) {
-                            isError = true
-                            errorMessage = "Token requis"
-                            return@launch
-                        }
-                        
-                        if (expiryDate.length != 10) {
-                            isError = true
-                            errorMessage = "Date incomplète"
-                            return@launch
-                        }
-                        
-                        // Parser la date
-                        val expiry = try {
-                            val parts = expiryDate.split("/")
-                            if (parts.size != 3) throw Exception("Format de date invalide")
-                            val day = parts[0].toInt()
-                            val month = parts[1].toInt()
-                            val year = parts[2].toInt()
-                            LocalDateTime.of(
-                                LocalDate.of(year, month, day),
-                                LocalTime.MAX
-                            )
-                        } catch (e: Exception) {
-                            isError = true
-                            errorMessage = "Format de date invalide (utilisez JJ/MM/AAAA)"
-                            return@launch
-                        }
-                        
-                        isLoading = true
-                        try {
-                            val success = auth.updateToken(token, expiry)
-                            if (success) {
-                                onDismiss()
-                            } else {
-                                isError = true
-                                errorMessage = "Token invalide"
-                            }
-                        } catch (e: Exception) {
-                            isError = true
-                            errorMessage = e.message ?: "Erreur lors de la validation"
-                        } finally {
-                            isLoading = false
-                        }
+                    if (token.isBlank()) {
+                        showErrorMessage = true
+                        return@Button
                     }
-                },
-                enabled = !isLoading
+                    githubAuth.setCredentials(token, expirationDate)
+                    onTokenValidated()
+                    onDismissRequest()
+                }
             ) {
-                Text("Se connecter")
+                Text("Valider")
             }
         },
         dismissButton = {
-            TextButton(
-                onClick = onDismiss,
-                enabled = !isLoading
-            ) {
+            TextButton(onClick = onDismissRequest) {
                 Text("Annuler")
             }
         }
