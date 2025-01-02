@@ -1,66 +1,48 @@
 package ui.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import github.githubAuth
+import github.githubManager
+import ui.screens.GitHubLoginScreen
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(showProjectManager: Boolean = false, onProjectManagerDismiss: () -> Unit = {}) {
-    var showSettings by remember { mutableStateOf(false) }
+fun MainScreen() {
     var showGithubLogin by remember { mutableStateOf(false) }
-    var showLogoutConfirm by remember { mutableStateOf(false) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Row(modifier = Modifier.fillMaxSize()) {
-            // Sidebar
-            Sidebar(
-                showProjectManager = onProjectManagerDismiss,
-                showSettings = { showSettings = true },
-                showGithubLogin = { showGithubLogin = true },
-                showLogoutConfirm = { showLogoutConfirm = true }
-            )
+    if (showGithubLogin) {
+        GitHubLoginScreen(
+            onBack = { showGithubLogin = false },
+            onTokenValidated = { showGithubLogin = false }
+        )
+    }
 
-            // Zone principale
-            MainContent()
-        }
-
-        // Dialogs
-        if (showSettings) {
-            AlertDialog(
-                onDismissRequest = { showSettings = false },
-                title = { Text("Paramètres") },
-                text = { Text("Configuration de WhisperIDE") },
-                confirmButton = {
-                    Button(onClick = { showSettings = false }) {
-                        Text("Fermer")
+    // Dialog de confirmation de déconnexion
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            title = { Text("Confirmation") },
+            text = { Text("Voulez-vous vraiment vous déconnecter ?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        githubManager.disconnectGithub()
+                        showLogoutDialog = false
                     }
+                ) {
+                    Text("Déconnexion")
                 }
-            )
-        }
-        
-        if (showGithubLogin) {
-            GithubLoginDialog(
-                auth = githubAuth,
-                onDismiss = { showGithubLogin = false }
-            )
-        }
-        
-        if (showLogoutConfirm) {
-            LogoutConfirmation(
-                onConfirm = {
-                    githubAuth.clearToken()
-                    showLogoutConfirm = false
-                },
-                onDismiss = { showLogoutConfirm = false }
-            )
-        }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutDialog = false }) {
+                    Text("Annuler")
+                }
+            }
+        )
     }
 }
