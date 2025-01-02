@@ -1,5 +1,6 @@
 package github
 
+import java.io.File
 import java.time.LocalDate
 
 class GithubManager(private val auth: GithubAuth = githubAuth) {
@@ -40,5 +41,10 @@ class GithubManager(private val auth: GithubAuth = githubAuth) {
         if (daysRemaining <= 0) {
             disconnectGithub()
         }
+    }
+
+    fun syncFiles(files: List<File>) {
+        // TODO: Implémenter la synchronisation avec GitHub
+        println("Synchronisation de ${files.size} fichiers...")
     }
 }
