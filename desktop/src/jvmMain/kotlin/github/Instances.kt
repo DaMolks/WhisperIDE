@@ -1,5 +1,4 @@
 package github
 
-// Instances globales pour GitHub
+// Instance unique de GithubAuth
 val githubAuth = GithubAuth()
-val githubManager = GithubManager(githubAuth)
