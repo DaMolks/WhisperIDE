@@ -13,45 +13,18 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import ui.components.*
 import ui.theme.WhisperTheme
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WhisperMainLayout() {
     var selectedScreen by remember { mutableStateOf(WhisperScreen.Chat) }
-    var isDrawerOpen by remember { mutableStateOf(false) }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
 
     WhisperTheme {
-        Scaffold(
-            topBar = {
-                SmallTopAppBar(
-                    title = { Text("WhisperIDE") },
-                    navigationIcon = {
-                        IconButton(onClick = { isDrawerOpen = !isDrawerOpen }) {
-                            Icon(Icons.Default.Menu, contentDescription = "Menu")
-                        }
-                    },
-                    actions = {
-                        IconButton(onClick = { selectedScreen = WhisperScreen.Settings }) {
-                            Icon(Icons.Default.Settings, contentDescription = "Paramètres")
-                        }
-                    }
-                )
-            },
-            bottomBar = {
-                NavigationBar {
-                    WhisperScreen.values()
-                        .filterNot { it == WhisperScreen.Settings }
-                        .forEach { screen ->
-                            NavigationBarItem(
-                                icon = { Icon(screen.icon, contentDescription = screen.title) },
-                                label = { Text(screen.title) },
-                                selected = selectedScreen == screen,
-                                onClick = { selectedScreen = screen }
-                            )
-                        }
-                }
-            },
+        DismissibleNavigationDrawer(
+            drawerState = drawerState,
             drawerContent = {
                 ModalDrawerSheet {
                     Text("WhisperIDE", modifier = Modifier.padding(16.dp))
@@ -69,8 +42,43 @@ fun WhisperMainLayout() {
                         onClick = { selectedScreen = WhisperScreen.Settings }
                     )
                 }
-            },
-            content = { padding ->
+            }
+        ) {
+            Scaffold(
+                topBar = {
+                    SmallTopAppBar(
+                        title = { Text("WhisperIDE") },
+                        navigationIcon = {
+                            IconButton(onClick = { 
+                                scope.launch {
+                                    if (drawerState.isClosed) drawerState.open() else drawerState.close()
+                                }
+                            }) {
+                                Icon(Icons.Default.Menu, contentDescription = "Menu")
+                            }
+                        },
+                        actions = {
+                            IconButton(onClick = { selectedScreen = WhisperScreen.Settings }) {
+                                Icon(Icons.Default.Settings, contentDescription = "Paramètres")
+                            }
+                        }
+                    )
+                },
+                bottomBar = {
+                    NavigationBar {
+                        WhisperScreen.values()
+                            .filterNot { it == WhisperScreen.Settings }
+                            .forEach { screen ->
+                                NavigationBarItem(
+                                    icon = { Icon(screen.icon, contentDescription = screen.title) },
+                                    label = { Text(screen.title) },
+                                    selected = selectedScreen == screen,
+                                    onClick = { selectedScreen = screen }
+                                )
+                            }
+                    }
+                }
+            ) { padding ->
                 Box(modifier = Modifier.padding(padding)) {
                     when (selectedScreen) {
                         WhisperScreen.Chat -> ChatInterface()
@@ -80,7 +88,7 @@ fun WhisperMainLayout() {
                     }
                 }
             }
-        )
+        }
     }
 }
 
