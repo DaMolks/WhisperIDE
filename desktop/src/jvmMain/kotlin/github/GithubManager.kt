@@ -1,22 +1,11 @@
 package github
 
-class GithubManager(private val auth: GithubAuth) {
-    private var currentRepository: String? = null
-    
-    fun setCurrentRepository(repo: String) {
-        currentRepository = repo
+class GithubManager(private val auth: GithubAuth = githubAuth) {
+    fun initializeGithub(token: String) {
+        // TODO: Implémenter l'initialisation GitHub
     }
-    
-    suspend fun createRepository(name: String, isPrivate: Boolean = false) {
-        // TODO: Implémenter la création de repo via l'API GitHub
-    }
-    
-    suspend fun syncFiles(localPath: String, remotePath: String) {
-        // TODO: Implémenter la synchronisation des fichiers
-    }
-    
-    suspend fun getRepositories(): List<String> {
-        // TODO: Récupérer la liste des dépôts
-        return emptyList()
+
+    fun disconnectGithub() {
+        auth.clearCredentials()
     }
 }
