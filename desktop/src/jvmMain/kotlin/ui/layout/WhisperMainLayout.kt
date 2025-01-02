@@ -16,4 +16,78 @@ import ui.theme.WhisperTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-// Reste du code...
+fun WhisperMainLayout() {
+    var selectedScreen by remember { mutableStateOf(WhisperScreen.Chat) }
+    var isDrawerOpen by remember { mutableStateOf(false) }
+    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
+
+    WhisperTheme {
+        Scaffold(
+            topBar = {
+                SmallTopAppBar(
+                    title = { Text("WhisperIDE") },
+                    navigationIcon = {
+                        IconButton(onClick = { isDrawerOpen = !isDrawerOpen }) {
+                            Icon(Icons.Default.Menu, contentDescription = "Menu")
+                        }
+                    },
+                    actions = {
+                        IconButton(onClick = { selectedScreen = WhisperScreen.Settings }) {
+                            Icon(Icons.Default.Settings, contentDescription = "Paramètres")
+                        }
+                    }
+                )
+            },
+            bottomBar = {
+                NavigationBar {
+                    WhisperScreen.values()
+                        .filterNot { it == WhisperScreen.Settings }
+                        .forEach { screen ->
+                            NavigationBarItem(
+                                icon = { Icon(screen.icon, contentDescription = screen.title) },
+                                label = { Text(screen.title) },
+                                selected = selectedScreen == screen,
+                                onClick = { selectedScreen = screen }
+                            )
+                        }
+                }
+            },
+            drawerContent = {
+                ModalDrawerSheet {
+                    Text("WhisperIDE", modifier = Modifier.padding(16.dp))
+                    Divider()
+                    NavigationDrawerItem(
+                        label = { Text("Fichiers") },
+                        icon = { Icon(Icons.Default.Folder, contentDescription = "Fichiers") },
+                        selected = false,
+                        onClick = { /* TODO: Implémenter l'ouverture de l'explorateur de fichiers */ }
+                    )
+                    NavigationDrawerItem(
+                        label = { Text("Paramètres") },
+                        icon = { Icon(Icons.Default.Settings, contentDescription = "Paramètres") },
+                        selected = false,
+                        onClick = { selectedScreen = WhisperScreen.Settings }
+                    )
+                }
+            },
+            content = { padding ->
+                Box(modifier = Modifier.padding(padding)) {
+                    when (selectedScreen) {
+                        WhisperScreen.Chat -> ChatInterface()
+                        WhisperScreen.Projects -> ProjectManagementScreen()
+                        WhisperScreen.Code -> CodeEditorScreen()
+                        WhisperScreen.Settings -> SettingsScreen()
+                    }
+                }
+            }
+        )
+    }
+}
+
+// Écrans principaux de l'application
+enum class WhisperScreen(val title: String, val icon: ImageVector) {
+    Chat("Chat", Icons.Default.Chat),
+    Projects("Projets", Icons.Default.FolderOpen),
+    Code("Code", Icons.Default.Code),
+    Settings("Paramètres", Icons.Default.Settings)
+}
