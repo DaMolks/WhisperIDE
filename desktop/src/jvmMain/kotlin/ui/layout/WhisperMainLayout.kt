@@ -40,6 +40,9 @@ fun WhisperMainLayout() {
                     TopAppBar(
                         title = { Text("WhisperIDE") },
                         actions = {
+                            IconButton(onClick = { /* TODO: GitHub Token */ }) {
+                                Icon(Icons.Default.Key, contentDescription = "GitHub Token")
+                            }
                             IconButton(onClick = { /* TODO: Nouveau Projet */ }) {
                                 Icon(Icons.Default.CreateNewFolder, contentDescription = "Nouveau Projet")
                             }
