@@ -17,8 +17,11 @@ import ui.theme.WhisperTheme
 @Composable
 fun WhisperMainLayout() {
     var isChatVisible by remember { mutableStateOf(true) }
-    var isDarkTheme by remember { mutableStateOf(isSystemInDarkTheme()) }
     var showSettings by remember { mutableStateOf(false) }
+    
+    // Gestion du thème
+    val systemInDarkTheme = isSystemInDarkTheme()
+    var isDarkTheme by remember { mutableStateOf(systemInDarkTheme) }
 
     WhisperTheme(darkTheme = isDarkTheme) {
         Surface(
