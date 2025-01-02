@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import github.githubAuth
 import github.githubManager
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,9 +24,11 @@ fun GitHubLoginScreen(
     var showDatePicker by remember { mutableStateOf(false) }
     var showErrorMessage by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
+    
+    // Formateur de date pour l'affichage en format européen
+    val dateFormatter = remember { DateTimeFormatter.ofPattern("dd/MM/yyyy") }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // Barre supérieure
         TopAppBar(
             title = { Text("Configuration GitHub") },
             navigationIcon = {
@@ -35,7 +38,6 @@ fun GitHubLoginScreen(
             }
         )
 
-        // Contenu
         Column(
             modifier = Modifier.fillMaxSize().padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -67,7 +69,7 @@ fun GitHubLoginScreen(
                     )
 
                     OutlinedTextField(
-                        value = expirationDate.toString(),
+                        value = expirationDate.format(dateFormatter),
                         onValueChange = { },
                         label = { Text("Date d'expiration") },
                         modifier = Modifier.fillMaxWidth(),
@@ -148,10 +150,28 @@ fun GitHubLoginScreen(
     }
 
     if (showDatePicker) {
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = expirationDate
+                .atStartOfDay()
+                .atZone(java.time.ZoneId.systemDefault())
+                .toInstant()
+                .toEpochMilli()
+        )
+
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
-                TextButton(onClick = { showDatePicker = false }) {
+                TextButton(
+                    onClick = {
+                        datePickerState.selectedDateMillis?.let { millis ->
+                            expirationDate = java.time.Instant
+                                .ofEpochMilli(millis)
+                                .atZone(java.time.ZoneId.systemDefault())
+                                .toLocalDate()
+                        }
+                        showDatePicker = false
+                    }
+                ) {
                     Text("OK")
                 }
             },
@@ -162,12 +182,7 @@ fun GitHubLoginScreen(
             }
         ) {
             DatePicker(
-                state = rememberDatePickerState(
-                    initialSelectedDateMillis = expirationDate
-                        .atStartOfDay()
-                        .toInstant(java.time.ZoneOffset.UTC)
-                        .toEpochMilli()
-                ),
+                state = datePickerState,
                 showModeToggle = false,
                 title = { Text("Date d'expiration") }
             )
