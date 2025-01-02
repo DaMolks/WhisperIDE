@@ -4,87 +4,69 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.material3.DismissibleNavigationDrawer
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import ui.components.*
 import ui.theme.WhisperTheme
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WhisperMainLayout() {
-    var selectedScreen by remember { mutableStateOf(WhisperScreen.Chat) }
-    val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
+    var isChatVisible by remember { mutableStateOf(true) }
 
     WhisperTheme {
-        DismissibleNavigationDrawer(
-            drawerState = drawerState,
-            drawerContent = {
-                ModalDrawerSheet {
-                    Text("WhisperIDE", modifier = Modifier.padding(16.dp))
-                    Divider()
-                    NavigationDrawerItem(
-                        label = { Text("Fichiers") },
-                        icon = { Icon(Icons.Default.Folder, contentDescription = "Fichiers") },
-                        selected = false,
-                        onClick = { /* TODO: Implémenter l'ouverture de l'explorateur de fichiers */ }
-                    )
-                    NavigationDrawerItem(
-                        label = { Text("Paramètres") },
-                        icon = { Icon(Icons.Default.Settings, contentDescription = "Paramètres") },
-                        selected = false,
-                        onClick = { selectedScreen = WhisperScreen.Settings }
-                    )
-                }
-            }
-        ) {
-            Scaffold(
-                topBar = {
-                    SmallTopAppBar(
-                        title = { Text("WhisperIDE") },
-                        navigationIcon = {
-                            IconButton(onClick = { 
-                                scope.launch {
-                                    if (drawerState.isClosed) drawerState.open() else drawerState.close()
-                                }
-                            }) {
-                                Icon(Icons.Default.Menu, contentDescription = "Menu")
-                            }
-                        },
-                        actions = {
-                            IconButton(onClick = { selectedScreen = WhisperScreen.Settings }) {
-                                Icon(Icons.Default.Settings, contentDescription = "Paramètres")
-                            }
-                        }
-                    )
-                },
-                bottomBar = {
-                    NavigationBar {
-                        WhisperScreen.values()
-                            .filterNot { it == WhisperScreen.Settings }
-                            .forEach { screen ->
-                                NavigationBarItem(
-                                    icon = { Icon(screen.icon, contentDescription = screen.title) },
-                                    label = { Text(screen.title) },
-                                    selected = selectedScreen == screen,
-                                    onClick = { selectedScreen = screen }
-                                )
-                            }
+        Column(modifier = Modifier.fillMaxSize()) {
+            // Barre d'outils principale
+            TopAppBar(
+                title = { Text("WhisperIDE") },
+                actions = {
+                    IconButton(onClick = { /* TODO: Nouveau Projet */ }) {
+                        Icon(Icons.Default.CreateNewFolder, contentDescription = "Nouveau Projet")
+                    }
+                    IconButton(onClick = { /* TODO: Paramètres */ }) {
+                        Icon(Icons.Default.Settings, contentDescription = "Paramètres")
                     }
                 }
-            ) { padding ->
-                Box(modifier = Modifier.padding(padding)) {
-                    when (selectedScreen) {
-                        WhisperScreen.Chat -> ChatInterface()
-                        WhisperScreen.Projects -> ProjectManagementScreen()
-                        WhisperScreen.Code -> CodeEditorScreen()
-                        WhisperScreen.Settings -> SettingsScreen()
+            )
+
+            // Layout principal
+            Row(modifier = Modifier.fillMaxSize()) {
+                // Navigation des fichiers (style explorateur)
+                Card(
+                    modifier = Modifier.width(250.dp).fillMaxHeight().padding(8.dp)
+                ) {
+                    Column(modifier = Modifier.padding(8.dp)) {
+                        Text("Explorateur", style = MaterialTheme.typography.titleMedium)
+                        // TODO: Ajouter l'arborescence des fichiers
+                    }
+                }
+
+                // Zone principale de code/éditeur
+                Card(
+                    modifier = Modifier.weight(1f).fillMaxHeight().padding(8.dp)
+                ) {
+                    CodeEditorScreen()
+                }
+
+                // Panel de chat IA (redimensionnable)
+                if (isChatVisible) {
+                    Card(
+                        modifier = Modifier.width(300.dp).fillMaxHeight().padding(8.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(8.dp)) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Assistant IA", style = MaterialTheme.typography.titleMedium)
+                                IconButton(onClick = { isChatVisible = false }) {
+                                    Icon(Icons.Default.Close, contentDescription = "Fermer")
+                                }
+                            }
+                            ChatInterface()
+                        }
                     }
                 }
             }
@@ -92,7 +74,6 @@ fun WhisperMainLayout() {
     }
 }
 
-// Écrans principaux de l'application
 enum class WhisperScreen(val title: String, val icon: ImageVector) {
     Chat("Chat", Icons.Default.Chat),
     Projects("Projets", Icons.Default.FolderOpen),
