@@ -87,8 +87,15 @@ fun FileExplorer(
                         coroutineScope.launch {
                             isSyncing = true
                             try {
-                                // Utilisez la méthode syncFiles de votre GithubManager
-                                githubManager.syncFiles(rootPath.absolutePath, rootPath.name)
+                                // Création de la liste des fichiers à synchroniser
+                                val filesToSync = mutableListOf<File>()
+                                if (rootPath.isDirectory) {
+                                    rootPath.walkTopDown().forEach { filesToSync.add(it) }
+                                } else {
+                                    filesToSync.add(rootPath)
+                                }
+                                // Synchronisation des fichiers
+                                githubManager.syncFiles(filesToSync)
                             } catch (e: Exception) {
                                 // Gérer l'erreur (vous pouvez ajouter un système de notification)
                                 e.printStackTrace()
