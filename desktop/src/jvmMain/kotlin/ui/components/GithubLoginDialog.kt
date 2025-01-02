@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import github.githubAuth
+import github.githubManager
 import java.time.LocalDate
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -21,6 +22,7 @@ fun GitHubLoginDialog(
     var expirationDate by remember { mutableStateOf(LocalDate.now().plusDays(30)) }
     var showDatePicker by remember { mutableStateOf(false) }
     var showErrorMessage by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = onDismissRequest,
@@ -34,7 +36,7 @@ fun GitHubLoginDialog(
             ) {
                 if (showErrorMessage) {
                     Text(
-                        "Token invalide ou champs manquants",
+                        errorMessage,
                         color = MaterialTheme.colorScheme.error
                     )
                 }
@@ -96,13 +98,17 @@ fun GitHubLoginDialog(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(
-                            "Token valide pendant encore ${githubAuth.getRemainingDays()} jours",
-                            style = MaterialTheme.typography.bodySmall
-                        )
+                        githubAuth.getRemainingDays()?.let { days ->
+                            Text(
+                                "Token valide pendant encore $days jours",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = if (days < 7) MaterialTheme.colorScheme.error
+                                       else MaterialTheme.colorScheme.onSurface
+                            )
+                        }
                         TextButton(
                             onClick = {
-                                githubAuth.clearCredentials()
+                                githubManager.disconnectGithub()
                                 token = ""
                             }
                         ) {
@@ -115,13 +121,26 @@ fun GitHubLoginDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    if (token.isBlank()) {
-                        showErrorMessage = true
-                        return@Button
+                    when {
+                        token.isBlank() -> {
+                            errorMessage = "Le token ne peut pas être vide"
+                            showErrorMessage = true
+                            return@Button
+                        }
+                        expirationDate.isBefore(LocalDate.now()) -> {
+                            errorMessage = "La date d'expiration doit être future"
+                            showErrorMessage = true
+                            return@Button
+                        }
                     }
-                    githubAuth.setCredentials(token, expirationDate)
-                    onTokenValidated()
-                    onDismissRequest()
+
+                    if (githubManager.initializeGithub(token, expirationDate)) {
+                        onTokenValidated()
+                        onDismissRequest()
+                    } else {
+                        errorMessage = "Erreur lors de la validation du token"
+                        showErrorMessage = true
+                    }
                 }
             ) {
                 Text("Valider")
