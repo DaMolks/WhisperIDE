@@ -12,6 +12,7 @@ import github.githubAuth
 import github.githubManager
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -24,6 +25,8 @@ fun GitHubLoginScreen(
     var showDatePicker by remember { mutableStateOf(false) }
     var showErrorMessage by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
+    var isValidating by remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
     
     // Formateur de date pour l'affichage en format européen
     val dateFormatter = remember { DateTimeFormatter.ofPattern("dd/MM/yyyy") }
@@ -65,7 +68,8 @@ fun GitHubLoginScreen(
                         },
                         label = { Text("Token GitHub") },
                         modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
+                        singleLine = true,
+                        enabled = !isValidating
                     )
 
                     OutlinedTextField(
@@ -74,38 +78,57 @@ fun GitHubLoginScreen(
                         label = { Text("Date d'expiration") },
                         modifier = Modifier.fillMaxWidth(),
                         readOnly = true,
+                        enabled = !isValidating,
                         trailingIcon = {
-                            IconButton(onClick = { showDatePicker = true }) {
+                            IconButton(
+                                onClick = { showDatePicker = true },
+                                enabled = !isValidating
+                            ) {
                                 Icon(Icons.Default.DateRange, "Sélectionner une date")
                             }
                         }
                     )
 
-                    Button(
-                        onClick = {
-                            when {
-                                token.isBlank() -> {
-                                    errorMessage = "Le token ne peut pas être vide"
-                                    showErrorMessage = true
-                                    return@Button
-                                }
-                                expirationDate.isBefore(LocalDate.now()) -> {
-                                    errorMessage = "La date d'expiration doit être future"
-                                    showErrorMessage = true
-                                    return@Button
-                                }
-                            }
+                    Box(modifier = Modifier.align(Alignment.End)) {
+                        if (isValidating) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                        } else {
+                            Button(
+                                onClick = {
+                                    when {
+                                        token.isBlank() -> {
+                                            errorMessage = "Le token ne peut pas être vide"
+                                            showErrorMessage = true
+                                            return@Button
+                                        }
+                                        expirationDate.isBefore(LocalDate.now()) -> {
+                                            errorMessage = "La date d'expiration doit être future"
+                                            showErrorMessage = true
+                                            return@Button
+                                        }
+                                    }
 
-                            if (githubManager.initializeGithub(token, expirationDate)) {
-                                onTokenValidated()
-                            } else {
-                                errorMessage = "Erreur lors de la validation du token"
-                                showErrorMessage = true
+                                    coroutineScope.launch {
+                                        isValidating = true
+                                        try {
+                                            if (githubManager.initializeGithub(token, expirationDate)) {
+                                                onTokenValidated()
+                                            } else {
+                                                errorMessage = "Token GitHub invalide"
+                                                showErrorMessage = true
+                                            }
+                                        } catch (e: Exception) {
+                                            errorMessage = "Erreur lors de la validation : ${e.message}"
+                                            showErrorMessage = true
+                                        } finally {
+                                            isValidating = false
+                                        }
+                                    }
+                                }
+                            ) {
+                                Text("Valider")
                             }
-                        },
-                        modifier = Modifier.align(Alignment.End)
-                    ) {
-                        Text("Valider")
+                        }
                     }
                 }
             }
@@ -139,7 +162,8 @@ fun GitHubLoginScreen(
                             },
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.error
-                            )
+                            ),
+                            enabled = !isValidating
                         ) {
                             Text("Déconnexion")
                         }
