@@ -17,8 +17,13 @@ import ui.theme.WhisperTheme
 @Composable
 fun WhisperMainLayout() {
     var isChatVisible by remember { mutableStateOf(true) }
-    var isDarkTheme by remember { mutableStateOf(isSystemInDarkTheme()) }
+    var isDarkTheme by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
+
+    // Initialisation du thème système au premier rendu
+    LaunchedEffect(Unit) {
+        isDarkTheme = isSystemInDarkTheme()
+    }
 
     WhisperTheme(darkTheme = isDarkTheme) {
         Box(modifier = Modifier.fillMaxSize()) {
