@@ -32,7 +32,7 @@ fun WhisperMainLayout() {
             )
 
             // Layout principal
-            Row(modifier = Modifier.fillMaxSize()) {
+            Row(modifier = Modifier.fillMaxSize().weight(1f)) {
                 // Navigation des fichiers (style explorateur)
                 Card(
                     modifier = Modifier.width(250.dp).fillMaxHeight().padding(8.dp)
@@ -43,17 +43,39 @@ fun WhisperMainLayout() {
                     }
                 }
 
-                // Zone principale de code/éditeur
-                Card(
-                    modifier = Modifier.weight(1f).fillMaxHeight().padding(8.dp)
-                ) {
-                    CodeEditorScreen()
+                // Zone principale de code et output
+                Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
+                    // Éditeur de code (2/3 de l'espace)
+                    Card(
+                        modifier = Modifier.weight(0.65f).fillMaxWidth().padding(8.dp)
+                    ) {
+                        CodeEditorScreen()
+                    }
+
+                    // Zone de sortie/logs/preview (1/3 de l'espace)
+                    Card(
+                        modifier = Modifier.weight(0.35f).fillMaxWidth().padding(8.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(8.dp)) {
+                            Text("Console / Preview", style = MaterialTheme.typography.titleMedium)
+                            // Tabs pour différentes vues
+                            TabRow(selectedTabIndex = 0) {
+                                Tab(selected = true, onClick = { }, text = { Text("Console") })
+                                Tab(selected = false, onClick = { }, text = { Text("Sortie") })
+                                Tab(selected = false, onClick = { }, text = { Text("Preview") })
+                            }
+                            // Zone de contenu
+                            Box(modifier = Modifier.fillMaxSize().padding(top = 8.dp)) {
+                                Text("// Sortie du programme s'affichera ici", style = MaterialTheme.typography.bodyMedium)
+                            }
+                        }
+                    }
                 }
 
-                // Panel de chat IA (redimensionnable)
+                // Panel de chat IA (plus large)
                 if (isChatVisible) {
                     Card(
-                        modifier = Modifier.width(300.dp).fillMaxHeight().padding(8.dp)
+                        modifier = Modifier.width(400.dp).fillMaxHeight().padding(8.dp)
                     ) {
                         Column(modifier = Modifier.padding(8.dp)) {
                             Row(
