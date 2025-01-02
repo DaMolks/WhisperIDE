@@ -1,78 +1,52 @@
 package ui.theme
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocal
-import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.remember
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 
-// Définition des couleurs pour chaque thème
-data class WhisperColorScheme(
-    val primary: Color,
-    val secondary: Color,
-    val background: Color,
-    val surface: Color,
-    val onPrimary: Color,
-    val onSecondary: Color,
-    val onBackground: Color,
-    val onSurface: Color
-)
-
-// Thème sombre par défaut
-val DarkColorScheme = WhisperColorScheme(
-    primary = Color(0xFF3700B3),
-    secondary = Color(0xFF03DAC6),
-    background = Color(0xFF121212),
-    surface = Color(0xFF1E1E1E),
-    onPrimary = Color.White,
-    onSecondary = Color.Black,
-    onBackground = Color.White,
-    onSurface = Color.White
-)
-
-// Thème clair
-val LightColorScheme = WhisperColorScheme(
+private val LightColors = lightColorScheme(
     primary = Color(0xFF6200EE),
-    secondary = Color(0xFF03DAC6),
-    background = Color.White,
-    surface = Color(0xFFFAFAFA),
     onPrimary = Color.White,
+    primaryContainer = Color(0xFFBB86FC),
+    onPrimaryContainer = Color.Black,
+    secondary = Color(0xFF03DAC6),
     onSecondary = Color.Black,
+    secondaryContainer = Color(0xFF018786),
+    onSecondaryContainer = Color.White,
+    background = Color.White,
     onBackground = Color.Black,
+    surface = Color(0xFFF5F5F5),
     onSurface = Color.Black
 )
 
-// Gestionnaire de thème
-class WhisperThemeState(
-    initialTheme: WhisperColorScheme = DarkColorScheme
-) {
-    var currentTheme = initialTheme
-        private set
-
-    fun toggleTheme() {
-        currentTheme = if (currentTheme == DarkColorScheme) LightColorScheme else DarkColorScheme
-    }
-}
-
-// Composition locale pour le thème
-val LocalWhisperTheme = compositionLocalOf { DarkColorScheme }
+private val DarkColors = darkColorScheme(
+    primary = Color(0xFFBB86FC),
+    onPrimary = Color.Black,
+    primaryContainer = Color(0xFF3700B3),
+    onPrimaryContainer = Color.White,
+    secondary = Color(0xFF03DAC6),
+    onSecondary = Color.Black,
+    secondaryContainer = Color(0xFF018786),
+    onSecondaryContainer = Color.White,
+    background = Color(0xFF121212),
+    onBackground = Color.White,
+    surface = Color(0xFF1E1E1E),
+    onSurface = Color.White
+)
 
 @Composable
 fun WhisperTheme(
-    darkTheme: Boolean = true,
+    darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colorScheme = remember { 
-        if (darkTheme) DarkColorScheme else LightColorScheme 
-    }
+    val colorScheme = if (darkTheme) DarkColors else LightColors
 
-    androidx.compose.material.MaterialTheme(
-        colors = androidx.compose.material.darkColors(
-            primary = colorScheme.primary,
-            secondary = colorScheme.secondary,
-            background = colorScheme.background,
-            surface = colorScheme.surface
-        ),
+    MaterialTheme(
+        colorScheme = colorScheme,
+        typography = Typography,
         content = content
     )
 }
+
+private val Typography = Typography()  // Using default Material3 typography
