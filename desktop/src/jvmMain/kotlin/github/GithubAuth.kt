@@ -2,7 +2,7 @@ package github
 
 import java.time.LocalDate
 
-object githubAuth {
+class GithubAuth {
     private var token: String? = null
     private var _expirationDate: LocalDate? = null
     val expirationDate: LocalDate? get() = _expirationDate
