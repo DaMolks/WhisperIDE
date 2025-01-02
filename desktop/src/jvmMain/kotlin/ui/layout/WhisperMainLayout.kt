@@ -48,48 +48,68 @@ fun WhisperMainLayout() {
                             }
                         },
                         colors = TopAppBarDefaults.topAppBarColors(
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            titleContentColor = MaterialTheme.colorScheme.onSurface
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            titleContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     )
 
                     // Layout principal
-                    Row(modifier = Modifier.fillMaxSize().weight(1f)) {
+                    Row(modifier = Modifier.fillMaxSize().weight(1f).padding(8.dp)) {
                         // Navigation des fichiers
-                        Card(
-                            modifier = Modifier.width(250.dp).fillMaxHeight().padding(8.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surface
+                        ElevatedCard(
+                            modifier = Modifier.width(250.dp).fillMaxHeight(),
+                            colors = CardDefaults.elevatedCardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant
+                            ),
+                            elevation = CardDefaults.elevatedCardElevation(
+                                defaultElevation = 3.dp
                             )
                         ) {
                             Column(modifier = Modifier.padding(8.dp)) {
-                                Text("Explorateur", style = MaterialTheme.typography.titleMedium)
+                                Text(
+                                    "Explorateur", 
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
                                 // TODO: Ajouter l'arborescence des fichiers
                             }
                         }
 
+                        Spacer(modifier = Modifier.width(8.dp))
+
                         // Zone principale
                         Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
+                            // Zone de code
                             Card(
-                                modifier = Modifier.weight(0.65f).fillMaxWidth().padding(8.dp),
+                                modifier = Modifier.weight(0.65f).fillMaxWidth(),
                                 colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surface
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
                                 )
                             ) {
                                 CodeEditorScreen()
                             }
 
-                            Card(
-                                modifier = Modifier.weight(0.35f).fillMaxWidth().padding(8.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surface
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            // Zone de console
+                            ElevatedCard(
+                                modifier = Modifier.weight(0.35f).fillMaxWidth(),
+                                colors = CardDefaults.elevatedCardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                ),
+                                elevation = CardDefaults.elevatedCardElevation(
+                                    defaultElevation = 3.dp
                                 )
                             ) {
                                 Column(modifier = Modifier.padding(8.dp)) {
-                                    Text("Console", style = MaterialTheme.typography.titleMedium)
+                                    Text(
+                                        "Console", 
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
                                     TabRow(
                                         selectedTabIndex = 0,
-                                        containerColor = MaterialTheme.colorScheme.surface
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant
                                     ) {
                                         Tab(selected = true, onClick = { }, text = { Text("Console") })
                                         Tab(selected = false, onClick = { }, text = { Text("Sortie") })
@@ -106,11 +126,16 @@ fun WhisperMainLayout() {
                             }
                         }
 
+                        Spacer(modifier = Modifier.width(8.dp))
+
                         if (isChatVisible) {
-                            Card(
-                                modifier = Modifier.width(400.dp).fillMaxHeight().padding(8.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.surface
+                            ElevatedCard(
+                                modifier = Modifier.width(400.dp).fillMaxHeight(),
+                                colors = CardDefaults.elevatedCardColors(
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                ),
+                                elevation = CardDefaults.elevatedCardElevation(
+                                    defaultElevation = 3.dp
                                 )
                             ) {
                                 Column(modifier = Modifier.padding(8.dp)) {
@@ -118,9 +143,17 @@ fun WhisperMainLayout() {
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.SpaceBetween
                                     ) {
-                                        Text("Assistant IA", style = MaterialTheme.typography.titleMedium)
+                                        Text(
+                                            "Assistant IA", 
+                                            style = MaterialTheme.typography.titleMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
                                         IconButton(onClick = { isChatVisible = false }) {
-                                            Icon(Icons.Default.Close, contentDescription = "Fermer")
+                                            Icon(
+                                                Icons.Default.Close, 
+                                                contentDescription = "Fermer",
+                                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
                                         }
                                     }
                                     ChatInterface()
