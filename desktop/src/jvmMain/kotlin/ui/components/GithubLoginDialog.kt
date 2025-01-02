@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.dp
 import github.githubAuth
 import github.githubManager
 import java.time.LocalDate
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -23,6 +24,8 @@ fun GitHubLoginDialog(
     var showDatePicker by remember { mutableStateOf(false) }
     var showErrorMessage by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
+    var isValidating by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     AlertDialog(
         onDismissRequest = onDismissRequest,
@@ -49,7 +52,8 @@ fun GitHubLoginDialog(
                     },
                     label = { Text("Token GitHub") },
                     modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
+                    singleLine = true,
+                    enabled = !isValidating
                 )
 
                 OutlinedTextField(
@@ -58,38 +62,21 @@ fun GitHubLoginDialog(
                     label = { Text("Date d'expiration") },
                     modifier = Modifier.fillMaxWidth(),
                     readOnly = true,
+                    enabled = !isValidating,
                     trailingIcon = {
-                        IconButton(onClick = { showDatePicker = true }) {
+                        IconButton(
+                            onClick = { showDatePicker = true },
+                            enabled = !isValidating
+                        ) {
                             Icon(Icons.Default.DateRange, "Sélectionner une date")
                         }
                     }
                 )
-                
-                if (showDatePicker) {
-                    DatePickerDialog(
-                        onDismissRequest = { showDatePicker = false },
-                        confirmButton = {
-                            TextButton(onClick = { showDatePicker = false }) {
-                                Text("OK")
-                            }
-                        },
-                        dismissButton = {
-                            TextButton(onClick = { showDatePicker = false }) {
-                                Text("Annuler")
-                            }
-                        }
-                    ) {
-                        DatePicker(
-                            state = rememberDatePickerState(
-                                initialSelectedDateMillis = expirationDate
-                                    .atStartOfDay()
-                                    .toInstant(java.time.ZoneOffset.UTC)
-                                    .toEpochMilli()
-                            ),
-                            showModeToggle = false,
-                            title = { Text("Date d'expiration") }
-                        )
-                    }
+
+                if (isValidating) {
+                    LinearProgressIndicator(
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
 
                 if (githubAuth.isAuthenticated()) {
@@ -98,19 +85,16 @@ fun GitHubLoginDialog(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        githubAuth.getRemainingDays()?.let { days ->
-                            Text(
-                                "Token valide pendant encore $days jours",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = if (days < 7) MaterialTheme.colorScheme.error
-                                       else MaterialTheme.colorScheme.onSurface
-                            )
-                        }
+                        Text(
+                            "Token valide pendant encore ${githubAuth.getRemainingDays()} jours",
+                            style = MaterialTheme.typography.bodySmall
+                        )
                         TextButton(
                             onClick = {
                                 githubManager.disconnectGithub()
                                 token = ""
-                            }
+                            },
+                            enabled = !isValidating
                         ) {
                             Text("Déconnexion")
                         }
@@ -134,22 +118,75 @@ fun GitHubLoginDialog(
                         }
                     }
 
-                    if (githubManager.initializeGithub(token, expirationDate)) {
-                        onTokenValidated()
-                        onDismissRequest()
-                    } else {
-                        errorMessage = "Erreur lors de la validation du token"
-                        showErrorMessage = true
+                    scope.launch {
+                        isValidating = true
+                        showErrorMessage = false
+                        try {
+                            if (githubManager.initializeGithub(token, expirationDate)) {
+                                onTokenValidated()
+                                onDismissRequest()
+                            } else {
+                                errorMessage = "Token GitHub invalide"
+                                showErrorMessage = true
+                            }
+                        } catch (e: Exception) {
+                            errorMessage = "Erreur : ${e.message}"
+                            showErrorMessage = true
+                        } finally {
+                            isValidating = false
+                        }
                     }
-                }
+                },
+                enabled = !isValidating
             ) {
                 Text("Valider")
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismissRequest) {
+            TextButton(
+                onClick = onDismissRequest,
+                enabled = !isValidating
+            ) {
                 Text("Annuler")
             }
         }
     )
+
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = { 
+                        datePickerState.selectedDateMillis?.let { millis ->
+                            expirationDate = java.time.Instant
+                                .ofEpochMilli(millis)
+                                .atZone(java.time.ZoneId.systemDefault())
+                                .toLocalDate()
+                        }
+                        showDatePicker = false 
+                    }
+                ) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Annuler")
+                }
+            }
+        ) {
+            DatePicker(
+                state = rememberDatePickerState(
+                    initialSelectedDateMillis = expirationDate
+                        .atStartOfDay()
+                        .atZone(java.time.ZoneId.systemDefault())
+                        .toInstant()
+                        .toEpochMilli()
+                ),
+                showModeToggle = false,
+                title = { Text("Date d'expiration") }
+            )
+        }
+    }
 }
